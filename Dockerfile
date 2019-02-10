@@ -60,4 +60,4 @@ RUN mkdir /usr/share/man/man1 && \
 
 VOLUME ["/data"]
 
-ENTRYPOINT (su -l AMP -c "ampinstmgr quick ${AMPUSER} ${AMPPASSWORD} 0.0.0.0 8080"; su -l AMP "ampinstmgr view ADS true") || bash || tail -f /dev/null
+ENTRYPOINT (su -l AMP -c "ampinstmgr quick ${AMPUSER} ${AMPPASSWORD} 0.0.0.0 8080"; su -l AMP -c "ampinstmgr view ADS true") || bash || tail -f /dev/null
