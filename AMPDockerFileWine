@@ -1,0 +1,9 @@
+FROM cubecoders/ampbase
+
+RUN dpkg --add-architecture i386 && apt-get update && apt-get -y upgrade && \
+	apt-get install -y xvfb wine wine32 wine64 wine-binfmt python3 winbind && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/ampstart.sh"]
+CMD []
