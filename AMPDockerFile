@@ -2,32 +2,39 @@
 
 FROM debian:11-slim
 
+ENV AMP_CONTAINER="DOCKER"
+ENV LD_LIBRARY_PATH="./:/opt/cubecoders/amp/:/AMP/"
+ENV LANG="en_US.UTF-8"
+
 RUN mkdir -p /usr/share/man/man1 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y \
         lib32gcc-s1 \
-	libc++-dev \
+        libc++-dev \
         coreutils \
         inetutils-ping \
         tmux \
         socat \
         unzip \
         wget \
-	procps \
-	libsqlite3-0 \
-	git \
-	curl \
-	xz-utils \
-	libzstd1 \
-	libgdiplus \
-        lib32stdc++6 \ 
+        procps \
+        libsqlite3-0 \
+        git git-lfs \
+        curl \
+        xz-utils \
+        bzip2 \
+        libzstd1 \
+        libgdiplus \
+        lib32stdc++6 \
+        gdb \
         lib32z1 libncurses5:i386 libbz2-1.0:i386 libtinfo5:i386 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-#    wget -q https://repo.cubecoders.com/ampinstmgr-latest.tgz && \
-#    tar -xf ampinstmgr-latest.tgz -C / && \
-#    rm ampinstmgr-latest.tgz
+    rm -rf /var/lib/apt/lists/* && \
+    wget -q https://repo.cubecoders.com/ampinstmgr-latest.tgz && \
+    tar -xf ampinstmgr-latest.tgz -C / && \
+    rm ampinstmgr-latest.tgz && \
+    /opt/cubecoders/amp/ampinstmgr --sync-certs
 
 ADD ampstart.sh /
 
