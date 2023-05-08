@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "[Info] AMPStart for Docker - v22.12.1"
+echo "[Info] AMPStart for Docker - v22.12.2"
 
 if [ -z "${AMPUSERID}" ]; then
   echo "[Info] This docker image cannot be used directly by itself - it must be started by ampinstmgr"
@@ -22,6 +22,10 @@ else
     chmod +x /AMP/AMP_Linux_x86_64
     echo "[Info] Container setup complete."
 fi
+
+export AMPHOSTPLATFORM
+export AMP_CONTAINER
+export AMPMEMORYLIMIT
 
 ARGS=$@
 exec su -l -c "ampinstmgr --sync-certs; cd /AMP; HOME=/home/amp /AMP/AMP_Linux_x86_64 ${ARGS}; exit $?" -- amp
