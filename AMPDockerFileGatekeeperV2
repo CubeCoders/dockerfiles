@@ -1,0 +1,17 @@
+FROM cubecoders/ampbase:python3
+
+RUN apt-get update && apt-get -y upgrade && \
+        apt-get install -y pip && \
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip
+
+RUN pip install numpy requests
+
+RUN git clone https://github.com/Rapptz/discord.py && \
+        cd discord.py && \
+        python3 -m pip install -U .[voice]
+
+ENTRYPOINT ["/ampstart.sh"]
+CMD []
