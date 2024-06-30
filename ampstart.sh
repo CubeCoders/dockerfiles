@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "[Info] AMPStart for Docker - v23.07.1"
+echo "[Info] AMPStart for Docker - v23.07.3"
 
 if [ -z "${AMPUSERID}" ]; then
   echo "[Info] This docker image cannot be used directly by itself - it must be started by ampinstmgr"
