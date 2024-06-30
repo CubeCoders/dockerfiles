@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "[Info] AMPStart for Docker - v22.12.2"
+echo "[Info] AMPStart for Docker - v23.07.3"
 
 if [ -z "${AMPUSERID}" ]; then
   echo "[Info] This docker image cannot be used directly by itself - it must be started by ampinstmgr"
@@ -21,6 +21,32 @@ else
     usermod -aG tty amp
     chmod +x /AMP/AMP_Linux_x86_64
     echo "[Info] Container setup complete."
+fi
+
+REQUIRED_DEPS=$(echo $AMP_CONTAINER_DEPS | jq -r '.[]')
+
+DEPS_TO_INSTALL=()
+for DEP in $REQUIRED_DEPS; do
+  if ! [[ $INSTALLED_DEPS =~ $DEP ]]; then
+    DEPS_TO_INSTALL+=($DEP)
+  fi
+done
+
+if [ ${#DEPS_TO_INSTALL[@]} -ne 0 ]; then
+  echo "[Info] Installing dependencies..."
+  apt-get update
+  apt-get install --allow-downgrades -y ${DEPS_TO_INSTALL[@]}
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+  echo "[Info] Installation complete."
+else
+  echo "[Info] No missing dependencies to install."
+fi
+
+if [ -f "/AMP/customstart.sh" ]; then
+  echo "[Info] Running customstart.sh..."
+  chmod +x /AMP/customstart.sh
+  /AMP/customstart.sh
 fi
 
 export AMPHOSTPLATFORM
