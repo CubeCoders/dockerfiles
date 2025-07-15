@@ -1,6 +1,6 @@
 # AMP Dockerfile
 
-FROM debian:12-slim
+FROM debian:11-slim
 
 ENV AMP_CONTAINER="DOCKER"
 ENV LD_LIBRARY_PATH="./:/opt/cubecoders/amp/:/AMP/"
@@ -24,14 +24,15 @@ RUN mkdir -p /usr/share/man/man1 && \
         wget \
 	procps \
 	libsqlite3-0 \
-	jq git git-lfs \
+	git git-lfs \
 	curl \
 	gdb \
 	xz-utils \
+	jq \
 	bzip2 \
 	libzstd1 \
 	libgdiplus \
-        lib32stdc++6 libc6 libatomic1 libpulse-dev liblua5.3-0 \ 
+        lib32stdc++6 libc6 libatomic1 libpulse-dev \ 
         lib32z1 libncurses5:i386 libbz2-1.0:i386 libtinfo5:i386 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
