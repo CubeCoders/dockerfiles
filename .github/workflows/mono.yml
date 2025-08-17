@@ -1,0 +1,79 @@
+name: build mono
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['base.yml']
+    types: [completed]
+    branches:
+      - master
+  push:
+    branches:
+      - master
+    paths:
+      - mono/**
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      only_mono: ${{ steps.filter.outputs.only_mono || 'false' }}
+    steps:
+      - if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - if: ${{ github.event_name == 'push' }}
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            only_mono:
+              - 'mono/**'
+              - '!base/**'
+              - '!scripts/ampstart.sh'
+
+  build_and_push:
+    needs: [check_changes]
+    if: ${{ github.repository_owner == 'CubeCoders' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.only_mono == 'true') || github.event_name == 'workflow_dispatch' ) }}
+    name: "amp:mono-${{ matrix.mono }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mono:
+          - latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: cubecoders
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./mono/${{ matrix.mono }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: ghcr.io/cubecoders/amp:mono-${{ matrix.mono }}
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.mono }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.mono }}
+          provenance: mode=max
+          sbom: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false

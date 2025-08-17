@@ -1,0 +1,79 @@
+name: build java
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['base.yml']
+    types: [completed]
+    branches:
+      - master
+  push:
+    branches:
+      - master
+    paths:
+      - java/**
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      only_java: ${{ steps.filter.outputs.only_java || 'false' }}
+    steps:
+      - if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - if: ${{ github.event_name == 'push' }}
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            only_java:
+              - 'java/**'
+              - '!base/**'
+              - '!scripts/ampstart.sh'
+
+  build_and_push:
+    needs: [check_changes]
+    if: ${{ github.repository_owner == 'CubeCoders' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.only_java == 'true') || github.event_name == 'workflow_dispatch' ) }}
+    name: "amp:java-${{ matrix.java }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - lts
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: cubecoders
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./java/${{ matrix.java }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: ghcr.io/cubecoders/amp:java-${{ matrix.java }}
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.java }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.java }}
+          provenance: mode=max
+          sbom: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
