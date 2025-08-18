@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "[Info] AMPStart for Docker - v23.07.1"
+echo "[Info] AMPStart for Docker - v23.07.3"
 INSTALLED_DEPS_FILE="/AMP/InstalledDeps.json"
 ARCH=$(uname -m)
 
