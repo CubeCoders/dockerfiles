@@ -62,6 +62,12 @@ if [ -n "$AMP_MOUNTPOINTS" ]; then
   done
 fi
 
+if [ -f "/AMP/customstart.sh" ]; then
+  echo "[Info] Running customstart.sh..."
+  chmod +x /AMP/customstart.sh
+  /AMP/customstart.sh
+fi
+
 export AMPHOSTPLATFORM
 export AMP_CONTAINER
 export AMPMEMORYLIMIT
