@@ -46,6 +46,7 @@ jobs:
       matrix:
         python:
           - '3'
+          - 3.11
 
     steps:
       - uses: actions/checkout@v4
