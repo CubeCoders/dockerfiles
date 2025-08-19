@@ -9,6 +9,12 @@ if [ -z "${AMPUSERID}" ]; then
   exit 100
 fi
 
+# Create /etc/machine-id (addresses Proton/dbus issues)
+mkdir -p /var/lib/dbus
+rm -f /etc/machine-id /var/lib/dbus/machine-id
+dbus-uuidgen --ensure=/etc/machine-id
+ln -s /etc/machine-id /var/lib/dbus/machine-id
+
 #Check if the AMP user already exists
 getent passwd amp &> /dev/null
 
