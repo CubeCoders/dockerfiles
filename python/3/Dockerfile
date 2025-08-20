@@ -15,7 +15,7 @@ ARG         DEBIAN_FRONTEND=noninteractive
 RUN         set -eux; \
             apt-get update; \
             apt-get install -y --no-install-recommends \
-                python3.11 python3-pip python3.11-venv; \
+                python3.11 python3.11-venv python3-pip; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
 
@@ -27,8 +27,11 @@ COPY        --from=py310 /usr/local/bin/ /usr/local/bin/
 COPY        --from=py312 /usr/local/lib/ /usr/local/lib/
 COPY        --from=py312 /usr/local/bin/ /usr/local/bin/
 
-# Make explicit version shims available in /usr/bin
-RUN         ln -sf /usr/local/bin/python3.10 /usr/bin/python3.10 && \
-            ln -sf /usr/local/bin/python3.12 /usr/bin/python3.12 && \
-            ln -sf /usr/local/bin/pip3.10 /usr/bin/pip3.10 && \
-            ln -sf /usr/local/bin/pip3.12 /usr/bin/pip3.12
+# Make explicit version shims available in /usr/bin, and remove conflicting shims in /usr/local/bin
+RUN         set -eux; \
+            for shim in python3.10 python3.12 pip3.10 pip3.12; do \
+                ln -sf "/usr/local/bin/$shim" "/usr/bin/$shim"; \
+            done; \
+            for shim in pip pip3 idle3 pydoc3 2to3 python-config python3-config; do \
+                rm -f "/usr/local/bin/$shim"; \
+            done
