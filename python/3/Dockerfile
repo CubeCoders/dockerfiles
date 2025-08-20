@@ -20,10 +20,12 @@ RUN         set -eux; \
             rm -rf /var/lib/apt/lists/*
 
 # Drop in Python 3.10
-COPY        --from=py310 /usr/local/ /usr/local/
+COPY        --from=py310 /usr/local/lib/python3.10/ /usr/local/lib/python3.10/
+COPY        --from=py310 /usr/local/bin/ /usr/local/bin/
 
 # Drop in Python 3.12
-COPY        --from=py312 /usr/local/ /usr/local/
+COPY        --from=py312 /usr/local/lib/python3.12/ /usr/local/lib/python3.12/
+COPY        --from=py312 /usr/local/bin/ /usr/local/bin/
 
 # Make explicit version shims available in /usr/bin
 RUN         ln -sf /usr/local/bin/python3.10 /usr/bin/python3.10 && \
