@@ -16,9 +16,9 @@ ARG         TARGETARCH
 RUN         set -eux; \
             mkdir -p /usr/share/man/man1; \
             apt-get update; \
-            apt-get install -y --no-install-recommends \
+            apt-get install -y \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
-                coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux sqlite3 dbus \
+                coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales \
                 libssl3 libcurl4 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat \
                 # Required for Core Keeper
@@ -35,22 +35,22 @@ RUN         set -eux; \
                 amd64) \
                     dpkg --add-architecture i386; \
                     apt-get update; \
-                    apt-get install -y --no-install-recommends \
+                    apt-get install -y \
                         # Required for steamcmd
                         libgcc-s1:i386 \
                         # Others
                         libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386 \
-                        libncurses6:i386 libncurses5:i386 libtinfo6:i386 libtinfo5:i386 libsdl2-2.0-0:i386 libssl-dev:i386; \
+                        libncurses6:i386 libncurses5:i386 libtinfo6:i386 libtinfo5:i386 libsdl2-2.0-0:i386 libssl3:i386; \
                     ;; \
                 arm64) \
                     dpkg --add-architecture armhf; \
                     apt-get update; \
-                    apt-get install -y --no-install-recommends \
+                    apt-get install -y \
                         # Required for steamcmd
                         libgcc-s1:armhf \
                         # Others
                         libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4:armhf libcurl3-gnutls:armhf libcurl4-gnutls-dev:armhf \
-                        libncurses6:armhf libncurses5:armhf libtinfo6:armhf libtinfo5:armhf libsdl2-2.0-0:armhf libssl-dev:armhf; \
+                        libncurses6:armhf libncurses5:armhf libtinfo6:armhf libtinfo5:armhf libsdl2-2.0-0:armhf libssl3:armhf; \
                     # Add box86/box64
                     install -d -m 0755 /etc/apt/keyrings; \
                     wget -qO- "https://pi-apps-coders.github.io/box86-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box86-archive-keyring.gpg; \
@@ -67,7 +67,7 @@ RUN         set -eux; \
                 amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb;; \
                 arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_arm64.deb;; \
             esac; \
-            apt-get install -y --no-install-recommends ./libssl1.1.deb; \
+            apt-get install -y ./libssl1.1.deb; \
             rm libssl1.1.deb; \
             # Install AMP instance manager
             case "$TARGETARCH" in \
