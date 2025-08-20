@@ -27,8 +27,10 @@ COPY        --from=py310 /usr/local/bin/ /usr/local/bin/
 COPY        --from=py312 /usr/local/lib/ /usr/local/lib/
 COPY        --from=py312 /usr/local/bin/ /usr/local/bin/
 
-# Make explicit version shims available in /usr/bin, and remove conflicting shims in /usr/local/bin
+# Clean up
 RUN         set -eux; \
+            python3.10 -m pip --no-cache-dir install --upgrade pip setuptools wheel; \
+            python3.12 -m pip --no-cache-dir install --upgrade pip setuptools wheel; \
             for shim in python3.10 python3.12 pip3.10 pip3.12; do \
                 ln -sf "/usr/local/bin/$shim" "/usr/bin/$shim"; \
             done; \
