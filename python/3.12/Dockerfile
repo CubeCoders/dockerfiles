@@ -1,10 +1,10 @@
-# Python image for AMP containers using Python 3.11
-# ghcr.io/cubecoders/amp:python-3.11
+# Python image for AMP containers using Python 3.12
+# ghcr.io/cubecoders/amp:python-3.12
 
-FROM        python:3.11-slim-bookworm AS py311
+FROM        python:3.12-slim-bookworm AS py312
 
 RUN         set -eux; \
-            V=3.11; \
+            V=3.12; \
             P=/usr/local/bin/python$V; \
             D=/usr/local/lib/python$V/lib-dynload; \
             { ldd "$P"; find "$D" -type f -name '*.so' -print0 | xargs -0 -n1 ldd; } \
@@ -22,23 +22,23 @@ ENV         PIP_DISABLE_PIP_VERSION_CHECK=1
 
 ARG         DEBIAN_FRONTEND=noninteractive
 
-COPY        --from=py311 /tmp/deps-3.11.txt /deps/3.11.txt
+COPY        --from=py312 /tmp/deps-3.12.txt /deps/3.12.txt
 
 RUN         set -eux; \
             apt-get update; \
             apt-get purge -y --auto-remove python3\*; \
-            RUNTIME_DEPS="$(cat /deps/3.11.txt)"; \
+            RUNTIME_DEPS="$(cat /deps/3.12.txt)"; \
             apt-get install -y --no-install-recommends $RUNTIME_DEPS; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
 
-COPY        --from=py311 /usr/local/ /usr/local/
+COPY        --from=py312 /usr/local/ /usr/local/
 
 RUN         set -eux; \
             for src in idle3 pip3 pydoc3 python3 python3-config; do \
                 dst="$(echo "$src" | tr -d 3)"; \
                 [ -e "/usr/local/bin/$dst" ] || ln -s "/usr/local/bin/$src" "/usr/local/bin/$dst"; \
             done; \
-            for shim in python3.11 python3 pip3.11 pip3 pip; do \
+            for shim in python3.12 python3 pip3.12 pip3 pip; do \
                 ln -sf "/usr/local/bin/$shim" "/usr/bin/$shim"; \
             done
