@@ -15,7 +15,7 @@ ARG         DEBIAN_FRONTEND=noninteractive
 RUN         set -eux; \
             apt-get update; \
             apt-get install -y --no-install-recommends \
-                python3.11 python3.11-pip python3.11-venv; \
+                python3.11 python3-pip python3.11-venv; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
 
