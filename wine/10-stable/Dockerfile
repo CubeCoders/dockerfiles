@@ -98,7 +98,7 @@ RUN         set -eux; \
                     echo "Wine dependencies:"; cat /tmp/wine-deps.txt || :; \
                     mv wine-installer/opt/wine* /opt/wine-${WINE_DIST}; \
                     rm -rf wine-installer *.deb; \
-                    xargs -ra "/tmp/wine-deps.txt" apt-get install -y --no-install-recommends; \
+                    xargs -ra "/tmp/wine-deps.txt" apt-get install -y --install-recommends; \
                     if [ -f /opt/wine-stable/bin/wine64 ]; then \
                         ln -sf /opt/wine-${WINE_DIST}/bin/wine64 /usr/bin/wine; \
                         ln -sf /opt/wine-${WINE_DIST}/bin/wine /usr/bin/wine32; \
