@@ -39,14 +39,15 @@ jobs:
   build_and_push:
     needs: [check_changes]
     if: ${{ github.repository_owner == 'CubeCoders' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.only_python == 'true') || github.event_name == 'workflow_dispatch' ) }}
-    name: "amp:python-${{ matrix.python }}"
+    name: 'amp:python-${{ matrix.python }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         python:
-          - '3'
           - 3.11
+          - '3'
 
     steps:
       - uses: actions/checkout@v4
