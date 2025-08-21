@@ -54,29 +54,38 @@ RUN         set -eux; \
                         | sed -E 's/\(.*\)//; s/^[[:space:]]+|[[:space:]]+$//g' \
                         | grep -E '.' \
                         | grep -Ev '^(wine|winehq)[[:alnum:]-]*$'; } >> /tmp/wine-reqs.i386 || :; \
-                    # Pick first available alternative
-                    pick_first_available() { \
-                        line="$1"; \
+                    # Pick first available and non-conflicting alternative
+                    resolve_alt() { \
+                        line="$1"; mode="$2"; \
                         printf '%s' "$line" \
                         | awk 'BEGIN{RS="\\|"}{gsub(/^[[:space:]]+|[[:space:]]+$/,""); if(length) print}' \
                         | while IFS= read -r cand; do \
-                            candver="$(apt-cache policy "$cand" 2>/dev/null | awk "/Candidate:/ {print \$2}")"; \
-                            if [ -n "$candver" ] && [ "$candver" != "(none)" ] && [ "$candver" != "none" ]; then \
-                                printf '%s\n' "$cand"; exit 0; \
+                            # For i386-mode, prefer armhf if candidate exists AND MA:same; else try native. For amd64-mode, native only. \
+                            if [ "$mode" = "i386" ]; then \
+                                arm_cand="$(apt-cache policy "${cand}:armhf" 2>/dev/null | awk "/Candidate:/ {print \$2}")"; \
+                                if [ -n "$arm_cand" ] && [ "$arm_cand" != "(none)" ] && [ "$arm_cand" != "none" ]; then \
+                                    ma="$(apt-cache show "${cand}:armhf" 2>/dev/null | awk -F': ' "/^Multi-Arch:/{print \$2; exit}")"; \
+                                    if [ "$ma" = "same" ]; then printf '%s:armhf\n' "$cand"; exit 0; fi; \
+                                fi; \
+                                nat_cand="$(apt-cache policy "$cand" 2>/dev/null | awk "/Candidate:/ {print \$2}")"; \
+                                if [ -n "$nat_cand" ] && [ "$nat_cand" != "(none)" ] && [ "$nat_cand" != "none" ]; then printf '%s\n' "$cand"; exit 0; fi; \
+                            else \
+                                nat_cand="$(apt-cache policy "$cand" 2>/dev/null | awk "/Candidate:/ {print \$2}")"; \
+                                if [ -n "$nat_cand" ] && [ "$nat_cand" != "(none)" ] && [ "$nat_cand" != "none" ]; then printf '%s\n' "$cand"; exit 0; fi; \
                             fi; \
-                            done; \
+                        done; \
                         return 1; \
                     }; \
                     # Resolve separate lists
                     : >/tmp/wine-deps.amd64; \
                     while IFS= read -r line; do \
-                        sel="$(pick_first_available "$line")" || true; \
+                        sel="$(resolve_alt "$line" amd64)" || true; \
                         [ -n "$sel" ] && printf '%s\n' "$sel" >> /tmp/wine-deps.amd64; \
                     done < /tmp/wine-reqs.amd64; \
                     : >/tmp/wine-deps.armhf; \
                     while IFS= read -r line; do \
-                        sel="$(pick_first_available "$line")" || true; \
-                        [ -n "$sel" ] && printf '%s:armhf\n' "$sel" >> /tmp/wine-deps.armhf; \
+                        sel="$(resolve_alt "$line" i386)" || true; \
+                        [ -n "$sel" ] && printf '%s\n' "$sel" >> /tmp/wine-deps.armhf; \
                     done < /tmp/wine-reqs.i386; \
                     # Generate final dependency list
                     sort -u /tmp/wine-deps.amd64 /tmp/wine-deps.armhf > /tmp/wine-deps.txt; \
