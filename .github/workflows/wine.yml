@@ -69,7 +69,7 @@ jobs:
         with:
           context: .
           file: ./wine/${{ matrix.wine }}/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
           tags: ghcr.io/cubecoders/amp:wine-${{ matrix.wine }}
