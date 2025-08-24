@@ -25,7 +25,8 @@ touch /home/amp/.gitconfig
 chown -R amp:amp /home/amp 2>/dev/null
 
 # Make AMP binary executable
-[ -f /AMP/AMP_Linux_${ARCH} ] && chmod +x /AMP/AMP_Linux_${ARCH}
+AMP_BIN="/AMP/AMP_Linux_${ARCH}"
+[ -f "${AMP_BIN}" ] && chmod +x "${AMP_BIN}"
 
 # Install extra dependencies if needed
 REQUIRED_DEPS=()
@@ -61,11 +62,10 @@ fi
 # Handoff
 echo "[Info] Starting AMP..."
 exec su -l -s /bin/bash \
-    -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,LANG,LANGUAGE,LC_ALL \
+    -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,AMP_BIN,LANG,LANGUAGE,LC_ALL \
     amp -c '
-        set -e
+        /ampinstmgr --sync-certs
         cd /AMP
         export LD_LIBRARY_PATH="/opt/cubecoders/amp:/AMP"
-        ampinstmgr --sync-certs
-        exec "/AMP/AMP_Linux_'"${ARCH}"'" "$@"
+        exec "${AMP_BIN}" "$@"
     ' -- _ "$@"
