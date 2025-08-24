@@ -3,6 +3,9 @@
 
 FROM        debian:bookworm-slim AS depsfinder
 
+ARG         DEBIAN_FRONTEND="noninteractive"
+ARG         TARGETARCH
+
 ARG         WINE_LINK="https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/"
 ARG         WINE_BRANCH="devel"
 ARG         WINE_DIST="bookworm"
