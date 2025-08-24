@@ -52,7 +52,7 @@ RUN         set -eux; \
                 | grep -E "^${WINE_TARGET}(\.|$)" \
                 | sort -V | tail -1 \
             )"; \
-            WINE_VERSION="${WINE_VERSION%%~*}"; \
+            WINE_VERSION="${WINE_BUILD%%~*}"; \
             \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends cabextract winbind python3; \
