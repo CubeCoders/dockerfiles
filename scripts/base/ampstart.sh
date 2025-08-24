@@ -61,11 +61,12 @@ fi
 
 # Handoff
 echo "[Info] Starting AMP..."
-exec su -l \
+exec su -l -s /bin/bash \
     -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,LANG,LANGUAGE,LC_ALL \
     amp -c '
-      cd /AMP
-      export LD_LIBRARY_PATH="/opt/cubecoders/amp:/AMP"
-      ampinstmgr --sync-certs
-      exec "/AMP/AMP_Linux_'"${ARCH}"'" "$@"
-    ' --  - "$@"
+        set -e
+        cd /AMP
+        export LD_LIBRARY_PATH="/opt/cubecoders/amp:/AMP"
+        ampinstmgr --sync-certs
+        exec "/AMP/AMP_Linux_'"${ARCH}"'" "$@"
+    ' -- _ "$@"
