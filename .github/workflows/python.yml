@@ -34,7 +34,7 @@ jobs:
             only_python:
               - 'python/**'
               - '!base/**'
-              - '!scripts/ampstart.sh'
+              - '!scripts/base/ampstart.sh'
 
   build_and_push:
     needs: [check_changes]

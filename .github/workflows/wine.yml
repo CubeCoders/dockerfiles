@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - wine/**
+      - scripts/wine/**
 
 permissions:
   contents: read
@@ -34,29 +35,22 @@ jobs:
             only_wine:
               - 'wine/**'
               - '!base/**'
-              - '!scripts/ampstart.sh'
+              - '!scripts/base/ampstart.sh'
 
-  build_and_push:
+  build_wine_common:
     needs: [check_changes]
     if: ${{ github.repository_owner == 'CubeCoders' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.only_wine == 'true') || github.event_name == 'workflow_dispatch' ) }}
-    name: "amp:wine-${{ matrix.wine }}"
+    name: 'amp:wine-common'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        wine:
-          - 9-stable
-          - 10-stable
-          - devel
-          - stable
-          - staging
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-#     - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -68,13 +62,53 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./wine/${{ matrix.wine }}/Dockerfile
+          file: ./wine/common/Dockerfile
           platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
-          tags: ghcr.io/cubecoders/amp:wine-${{ matrix.wine }}
-          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.wine }}
-          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.wine }}
+          tags: ghcr.io/cubecoders/amp:wine-common
+          cache-from: type=gha,scope=${{ github.workflow }}-common
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-common
+          provenance: mode=max
+          sbom: true
+
+  build_versions:
+    needs: [build_wine_common]
+    name: 'amp:wine-${{ matrix.version }}'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - stable
+          - devel
+          - staging
+          - 10-stable
+          - 9-stable
+        
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: cubecoders
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./wine/${{ matrix.version }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: ghcr.io/cubecoders/amp:wine-${{ matrix.version }}
+          cache-from: |
+            type=gha,scope=${{ github.workflow }}-wine-common
+            type=gha,scope=${{ github.workflow }}-wine-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.version }}
           provenance: mode=max
           sbom: true
 
