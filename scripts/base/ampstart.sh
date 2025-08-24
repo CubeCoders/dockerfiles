@@ -25,7 +25,7 @@ touch /home/amp/.gitconfig
 chown -R amp:amp /home/amp 2>/dev/null
 
 # Make AMP binary executable
-AMP_BIN="/AMP/AMP_Linux_${ARCH}"
+export AMP_BIN="/AMP/AMP_Linux_${ARCH}"
 [ -f "${AMP_BIN}" ] && chmod +x "${AMP_BIN}"
 
 # Install extra dependencies if needed
