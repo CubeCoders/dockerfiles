@@ -5,7 +5,7 @@ FROM        ghcr.io/cubecoders/amp:debian
 
 LABEL       org.opencontainers.image.licenses=MIT
 
-ARG         DEBIAN_FRONTEND="noninteractive"
+ENV         DEBIAN_FRONTEND="noninteractive"
 
 # Install required packages and Mono
 RUN         set -eux; \

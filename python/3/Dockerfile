@@ -7,7 +7,7 @@ FROM        python:3.12-slim-bookworm AS py312
 FROM        ghcr.io/cubecoders/amp:python-3.11
 LABEL       org.opencontainers.image.licenses=MIT
 
-ARG         DEBIAN_FRONTEND="noninteractive"
+ENV         DEBIAN_FRONTEND="noninteractive"
 
 # Drop in upstream Python 3.10
 COPY        --from=py310 /usr/local/bin/python3.10 /usr/local/bin/

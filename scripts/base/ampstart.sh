@@ -35,7 +35,6 @@ if [[ -n "${AMP_CONTAINER_DEPS:-}" ]]; then
 fi
 if ((${#REQUIRED_DEPS[@]})); then
     echo "[Info] Installing extra dependencies..."
-    DEBIAN_FRONTEND="noninteractive"
     apt-get update
     apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends --allow-downgrades "${REQUIRED_DEPS[@]}"
     apt-get clean

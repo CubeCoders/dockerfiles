@@ -3,9 +3,9 @@
 
 FROM        debian:bookworm-slim AS depsfinder
 
-ARG         DEBIAN_FRONTEND="noninteractive"
-ARG         TARGETARCH
+ENV         DEBIAN_FRONTEND="noninteractive"
 
+ARG         TARGETARCH
 ARG         WINE_LINK="https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/"
 ARG         WINE_BRANCH="stable"
 ARG         WINE_DIST="bookworm"
@@ -32,9 +32,9 @@ FROM        ghcr.io/cubecoders/amp:wine-common
 
 LABEL       org.opencontainers.image.licenses=MIT
 
-ARG         DEBIAN_FRONTEND="noninteractive"
-ARG         TARGETARCH
+ENV         DEBIAN_FRONTEND="noninteractive"
 
+ARG         TARGETARCH
 ARG         WINE_LINK="https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/"
 ARG         WINE_BRANCH="stable"
 ARG         WINE_DIST="bookworm"

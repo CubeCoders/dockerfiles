@@ -7,8 +7,8 @@ LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/docke
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         AMP_CONTAINER="DOCKER"
+ENV         DEBIAN_FRONTEND="noninteractive"
 
-ARG         DEBIAN_FRONTEND="noninteractive"
 ARG         TARGETARCH
 
 # Update base packages and install dependencies

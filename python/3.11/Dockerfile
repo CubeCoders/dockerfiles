@@ -5,8 +5,7 @@ FROM        ghcr.io/cubecoders/amp:debian
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"
-
-ARG         DEBIAN_FRONTEND="noninteractive"
+ENV         DEBIAN_FRONTEND="noninteractive"
 
 # System Python (3.11) from Debian
 RUN         set -eux; \

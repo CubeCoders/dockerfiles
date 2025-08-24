@@ -3,9 +3,9 @@
 
 FROM        debian:bookworm-slim AS depsfinder
 
-ARG         DEBIAN_FRONTEND="noninteractive"
-ARG         TARGETARCH
+ENV         DEBIAN_FRONTEND="noninteractive"
 
+ARG         TARGETARCH
 ARG         BUILDS="stable devel staging 10-stable 9-stable"
 ARG         WINE_DIST="bookworm"
 
@@ -37,7 +37,8 @@ FROM        ghcr.io/cubecoders/amp:debian
 
 LABEL       org.opencontainers.image.licenses=MIT
 
-ARG         DEBIAN_FRONTEND=noninteractive
+ENV         DEBIAN_FRONTEND="noninteractive"
+
 ARG         TARGETARCH
 
 COPY        --from=depsfinder /tmp/wine-files /tmp/wine-files
