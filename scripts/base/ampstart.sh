@@ -28,7 +28,11 @@ chown -R amp:amp /home/amp 2>/dev/null
 [ -f /AMP/AMP_Linux_${ARCH} ] && chmod +x /AMP/AMP_Linux_${ARCH}
 
 # Install extra dependencies if needed
-mapfile -t REQUIRED_DEPS < <(jq -r '.[]' <<<"${AMP_CONTAINER_DEPS}")
+REQUIRED_DEPS=()
+if [[ -n "${AMP_CONTAINER_DEPS:-}" ]]; then
+    # shellcheck disable=SC2207
+    REQUIRED_DEPS=($(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" || echo))
+fi
 if ((${#REQUIRED_DEPS[@]})); then
     echo "[Info] Installing extra dependencies..."
     DEBIAN_FRONTEND="noninteractive"
