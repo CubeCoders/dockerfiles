@@ -7,9 +7,7 @@ FROM        python:3.12-slim-bookworm AS py312
 FROM        ghcr.io/cubecoders/amp:python-3.11
 LABEL       org.opencontainers.image.licenses=MIT
 
-ENV         PIP_DISABLE_PIP_VERSION_CHECK=1
-
-ARG         DEBIAN_FRONTEND=noninteractive
+ARG         DEBIAN_FRONTEND="noninteractive"
 
 # Drop in upstream Python 3.10
 COPY        --from=py310 /usr/local/bin/python3.10 /usr/local/bin/
@@ -28,5 +26,5 @@ RUN         set -eux; \
             python3.10 -m pip --no-cache-dir install --upgrade pip setuptools wheel; \
             python3.12 -m pip --no-cache-dir install --upgrade pip setuptools wheel; \
             for shim in python3.10 python3.12 pip3.10 pip3.12; do \
-                ln -sf "/usr/local/bin/$shim" "/usr/bin/$shim"; \
+                ln -sf "/usr/local/bin/${shim}" "/usr/bin/${shim}"; \
             done

@@ -8,7 +8,7 @@ on:
       - master
     paths:
       - base/**
-      - scripts/ampstart.sh
+      - scripts/base/ampstart.sh
 permissions:    
   contents: read
   packages: write
@@ -16,7 +16,7 @@ permissions:
 jobs:
   push:
     if: ${{ github.repository_owner == 'CubeCoders' }}
-    name: "amp:${{ matrix.base }}"
+    name: 'amp:${{ matrix.base }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

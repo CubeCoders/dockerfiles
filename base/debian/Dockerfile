@@ -7,16 +7,15 @@ LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/docke
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         AMP_CONTAINER="DOCKER"
-ENV         LD_LIBRARY_PATH="./:/opt/cubecoders/amp/:/AMP/"
 
-ARG         DEBIAN_FRONTEND=noninteractive
+ARG         DEBIAN_FRONTEND="noninteractive"
 ARG         TARGETARCH
 
 # Update base packages and install dependencies
 RUN         set -eux; \
             mkdir -p /usr/share/man/man1; \
             apt-get update; \
-            apt-get install -y \
+            apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales \
@@ -30,27 +29,30 @@ RUN         set -eux; \
                 # Required for Eco
                 libgdiplus \
                 # Required for Pavlov VR (and variously some others)
-                gdb libc++-dev; \    
+                gdb libc++-dev; \
+            \  
             case "$TARGETARCH" in \
                 amd64) \
                     dpkg --add-architecture i386; \
                     apt-get update; \
-                    apt-get install -y \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                         # Required for steamcmd
                         libgcc-s1:i386 \
                         # Others
                         libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386 \
                         libncurses6:i386 libncurses5:i386 libtinfo6:i386 libtinfo5:i386 libsdl2-2.0-0:i386 libssl3:i386; \
                     ;; \
+                \
                 arm64) \
                     dpkg --add-architecture armhf; \
                     apt-get update; \
-                    apt-get install -y \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                         # Required for steamcmd
                         libgcc-s1:armhf \
                         # Others
                         libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4:armhf libcurl3-gnutls:armhf libcurl4-gnutls-dev:armhf \
                         libncurses6:armhf libncurses5:armhf libtinfo6:armhf libtinfo5:armhf libsdl2-2.0-0:armhf libssl3:armhf; \
+                    \
                     # Add box86/box64
                     install -d -m 0755 /etc/apt/keyrings; \
                     wget -qO- "https://pi-apps-coders.github.io/box86-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box86-archive-keyring.gpg; \
@@ -58,35 +60,39 @@ RUN         set -eux; \
                     wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg; \
                     printf "Types: deb\nURIs: https://Pi-Apps-Coders.github.io/box64-debs/debian\nSuites: ./\nSigned-By: /etc/apt/keyrings/box64-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box64.sources >/dev/null; \
                     apt-get update; \
-                    apt-get install -y \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                         box86-generic-arm:armhf box64-generic-arm; \
                     ;; \
             esac; \
+            \
             # Temp fix if libssl1.1 needed
-            case "$TARGETARCH" in \
+            case "${TARGETARCH}" in \
                 amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb;; \
                 arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_arm64.deb;; \
             esac; \
             apt-get install -y ./libssl1.1.deb; \
             rm libssl1.1.deb; \
+            \
             # Install AMP instance manager
-            case "$TARGETARCH" in \
+            case "${TARGETARCH}" in \
                 amd64) wget -q https://cdn-repo.c7rs.com/ampinstmgr-latest.tgz;; \
                 arm64) wget -q https://cdn-repo.c7rs.com/aarch64/ampinstmgr-latest.tgz;; \
             esac; \
             tar -xzf ampinstmgr-latest.tgz -C /; \
             rm ampinstmgr-latest.tgz; \
+            \
             # Set up locales
             sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen; \
             locale-gen; \
+            \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
 
-ENV         LANG=en_US.UTF-8
-ENV         LANGUAGE=en_US:en
-ENV         LC_ALL=en_US.UTF-8
+ENV         LANG="en_US.UTF-8"
+ENV         LANGUAGE="en_US:en"
+ENV         LC_ALL="en_US.UTF-8"
 
-COPY        ./scripts/ampstart.sh /ampstart.sh
+COPY        ./scripts/base/ampstart.sh /ampstart.sh
 RUN         chmod +x /ampstart.sh
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--", "/ampstart.sh"]
 CMD         []
