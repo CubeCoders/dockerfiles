@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e -o pipefail
+#set -e -o pipefail
 
 echo "[Info] AMPStart for Docker"
 ARCH=$(uname -m)
@@ -61,12 +61,11 @@ fi
 
 # Handoff
 echo "[Info] Starting AMP..."
-ARGS="$@"
 exec su -l -s /bin/bash \
     -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,AMP_BIN,LANG,LANGUAGE,LC_ALL \
-    amp -c "
-        export LD_LIBRARY_PATH='/opt/cubecoders/amp:/AMP'
+    amp -c '
+        export LD_LIBRARY_PATH="/opt/cubecoders/amp:/AMP"
         /opt/cubecoders/amp/ampinstmgr --sync-certs
         cd /AMP
-        exec ${AMP_BIN} ${ARGS}
-    "
+        exec "${AMP_BIN}" "$@"
+    ' -- _ "$@"
