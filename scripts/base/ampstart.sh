@@ -79,6 +79,7 @@ fi
 
 # Handoff
 echo "[Info] Starting AMP..."
+ARGS=$@
 keep_env=(
   HOME=/home/amp
   USER=amp LOGNAME=amp SHELL=/bin/bash
@@ -91,4 +92,4 @@ for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT
 done
 
 exec gosu amp:amp env -i "${keep_env[@]}" \
-  bash -c "cd /AMP && exec ${AMP_BIN} $@"
+  bash -c "cd /AMP && exec ${AMP_BIN} ${ARGS}"
