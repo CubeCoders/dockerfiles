@@ -15,14 +15,31 @@ dbus-uuidgen --ensure=/etc/machine-id
 ln -s /etc/machine-id /var/lib/dbus/machine-id
 
 # Set up amp user and group
-: "${AMPUSERID:?[Error] AMPUSERID not set}"
-: "${AMPGROUPID:?[Error] AMPGROUPID not set}"
+: "${AMPUSERID:?AMPUSERID not set}"
+: "${AMPGROUPID:?AMPGROUPID not set}"
+
 echo "[Info] Setting up amp user and group..."
-getent group "${AMPGROUPID}" >/dev/null 2>&1 || groupadd -r -g "${AMPGROUPID}" amp
-id -u amp >/dev/null 2>&1 || useradd -m -d /home/amp -s /bin/bash -c "AMP Process User" -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
-usermod -aG tty amp
+
+if ! getent group "${AMPGROUPID}" >/dev/null; then
+  if getent group amp >/dev/null; then
+    groupmod -o -g "${AMPGROUPID}" amp
+  else
+    groupadd -r -g "${AMPGROUPID}" amp
+  fi
+fi
+
+if id amp &>/dev/null; then
+  usermod -o -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
+else
+  useradd -m -d /home/amp -s /bin/bash -c "AMP Process User" \
+    -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
+fi
+
+getent group tty >/dev/null && usermod -aG tty amp
+
+install -d -m 0755 /home/amp
 touch /home/amp/.gitconfig
-chown -R amp:amp /home/amp 2> /dev/null
+chown -R amp:amp /home/amp
 
 # Make AMP binary executable
 export AMP_BIN="/AMP/AMP_Linux_${ARCH}"
@@ -34,6 +51,7 @@ if [[ -n "${AMP_CONTAINER_DEPS:-}" ]]; then
   # shellcheck disable=SC2207
   REQUIRED_DEPS=($(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" || echo))
 fi
+
 if ((${#REQUIRED_DEPS[@]})); then
   echo "[Info] Installing extra dependencies..."
   apt-get update
@@ -61,7 +79,19 @@ fi
 
 # Handoff
 echo "[Info] Starting AMP..."
-exec gosu amp:amp bash -lc '
-  cd /AMP
-  exec "${AMP_BIN}" "$@"
-' -- _ "$@"
+exec gosu amp:amp env -i \
+  HOME=/home/amp \
+  USER=amp LOGNAME=amp SHELL=/bin/bash \
+  LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}" \
+  PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games \
+  AMPHOSTPLATFORM="${AMPHOSTPLATFORM:-}" \
+  AMP_CONTAINER="${AMP_CONTAINER:-}" \
+  AMPMEMORYLIMIT="${AMPMEMORYLIMIT:-}" \
+  AMPSWAPLIMIT="${AMPSWAPLIMIT:-}" \
+  AMPCONTAINERCPUS="${AMPCONTAINERCPUS:-}" \
+  AMP_CONTAINER_HOST_NETWORK="${AMP_CONTAINER_HOST_NETWORK:-}" \
+  AMP_BIN="$AMP_BIN" \
+  bash -lc '
+    cd /AMP
+    exec "$AMP_BIN" "$@"
+  ' -- _ "$@"
