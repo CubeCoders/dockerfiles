@@ -124,20 +124,6 @@ if [ -n "${COMPAT}" ]; then
         }' | sort -u >"${AVC}"
 fi
 
-# Multi-Arch:same (keep as pkg:arch for checks)
-MAS="$(mktemp)"; : >"${MAS}"
-if [ -n "${COMPAT}" ]; then
-    xargs -a "${TOKENS}" -r -I{} printf '%s:%s\n' '{}' "${COMPAT}" \
-    | xargs -r apt-cache show -- 2>/dev/null \
-    | awk -v arch="${COMPAT}" -F': ' '
-        NF==0 { if (p && a==arch && tolower(ma)=="same") print p ":" a; p=a=ma=""; next }
-        $1=="Package"      { p=$2 }
-        $1=="Architecture" { a=$2 }
-        $1=="Multi-Arch"   { ma=$2 }
-        END { if (p && a==arch && tolower(ma)=="same") print p ":" a }
-        ' | sort -u >"${MAS}"
-fi
-
 # Helper: pick first available alternative against given availability cache
 pick_alt() { line=$1; avail=$2; suff=${3:-}; OLDIFS=${IFS}; IFS='|'
     for t in ${line}; do
@@ -149,6 +135,19 @@ pick_alt() { line=$1; avail=$2; suff=${3:-}; OLDIFS=${IFS}; IFS='|'
         fi
     done
     IFS=${OLDIFS}; return 1
+}
+
+# Helper: return 0 if pkg:arch is Multi-Arch: same, else 1
+ma_same_pkg() { # $1=pkg  $2=arch
+  apt-cache show "$1:$2" 2>/dev/null \
+  | awk -v p="$1" -v a="$2" -F': ' '
+      # parse stanza-by-stanza
+      NF==0 { if (pk && ar==a && tolower(ma)=="same") {ok=1} pk=ar=ma=""; next }
+      $1=="Package"      { pk=$2 }
+      $1=="Architecture" { ar=$2 }
+      $1=="Multi-Arch"   { ma=$2 }
+      END { if (pk && ar==a && tolower(ma)=="same") ok=1; exit (ok?0:1) }
+    '
 }
 
 # Native → print bare names (stable de-dupe)
@@ -166,9 +165,9 @@ if [ -n "${COMPAT}" ]; then
 
         chosen=""
         if ! grep -Fxq "${base}" "${NSET}"; then
-        chosen="${first}"
+            chosen="${first}"
         else
-            if grep -Fxq "${base}:${COMPAT}" "${MAS}"; then
+            if ma_same_pkg "${base}" "${COMPAT}"; then
                 chosen="${first}"
             else
                 OLDIFS=${IFS}; IFS='|'
@@ -176,7 +175,7 @@ if [ -n "${COMPAT}" ]; then
                     p=$(printf '%s' "${t}" | sed -E 's/\(.*\)//; s/:any$//; s/:all$//; s/^[[:space:]]+|[[:space:]]+$//g')
                     [ -n "${p}" ] || continue
                     grep -Fxq "${p}" "${AVC}" || continue
-                    if ! grep -Fxq "${p}" "${NSET}" || grep -Fxq "${p}:${COMPAT}" "${MAS}"; then
+                    if ! grep -Fxq "${p}" "${NSET_SORT}" || ma_same_pkg "${p}" "${COMPAT}"; then
                         chosen="${p}:${COMPAT}"; break
                     fi
                 done
@@ -189,4 +188,4 @@ if [ -n "${COMPAT}" ]; then
 fi
 
 # cleanup
-rm -f "${TOKENS}" "${AVN}" "${AVC}" "${MAS}" "${NSET}" 2>/dev/null || true
+rm -f "${TOKENS}" "${AVN}" "${AVC}" "${NSET}" 2>/dev/null || true
