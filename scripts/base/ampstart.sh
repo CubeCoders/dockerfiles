@@ -42,7 +42,7 @@ touch /home/amp/.gitconfig
 chown -R amp:amp /home/amp
 
 # Make AMP binary executable
-export AMP_BIN="/AMP/AMP_Linux_${ARCH}"
+AMP_BIN="/AMP/AMP_Linux_${ARCH}"
 [ -f "${AMP_BIN}" ] && chmod +x "${AMP_BIN}"
 
 # Install extra dependencies if needed
@@ -79,19 +79,19 @@ fi
 
 # Handoff
 echo "[Info] Starting AMP..."
-exec gosu amp:amp env -i \
-  HOME=/home/amp \
-  USER=amp LOGNAME=amp SHELL=/bin/bash \
-  LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}" \
-  PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games \
-  AMPHOSTPLATFORM="${AMPHOSTPLATFORM:-}" \
-  AMP_CONTAINER="${AMP_CONTAINER:-}" \
-  AMPMEMORYLIMIT="${AMPMEMORYLIMIT:-}" \
-  AMPSWAPLIMIT="${AMPSWAPLIMIT:-}" \
-  AMPCONTAINERCPUS="${AMPCONTAINERCPUS:-}" \
-  AMP_CONTAINER_HOST_NETWORK="${AMP_CONTAINER_HOST_NETWORK:-}" \
-  AMP_BIN="$AMP_BIN" \
-  bash -lc '
+keep_env=(
+  HOME=/home/amp
+  USER=amp LOGNAME=amp SHELL=/bin/bash
+  LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
+  PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+  MAIL=/var/mail/amp
+  AMP_BIN="$AMP_BIN"
+)
+for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
+  if [[ -n "${!v-}" ]]; then keep_env+=("$v=${!v}"); fi
+done
+
+exec gosu amp:amp env -i "${keep_env[@]}" bash -lc '
     cd /AMP
     exec "$AMP_BIN" "$@"
   ' -- _ "$@"
