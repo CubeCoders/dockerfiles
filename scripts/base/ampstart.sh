@@ -85,13 +85,10 @@ keep_env=(
   LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
   PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
   MAIL=/var/mail/amp
-  AMP_BIN="$AMP_BIN"
 )
 for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
   if [[ -n "${!v-}" ]]; then keep_env+=("$v=${!v}"); fi
 done
 
-exec gosu amp:amp env -i "${keep_env[@]}" bash -lc '
-    cd /AMP
-    exec "$AMP_BIN" "$@"
-  ' -- _ "$@"
+exec gosu amp:amp env -i "${keep_env[@]}" \
+  bash -c 'cd /AMP && exec "$0" "$@"' "${AMP_BIN}" "$@"
