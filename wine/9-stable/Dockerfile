@@ -18,6 +18,7 @@ RUN         set -eux; \
             export WINE_FILES_DIR="/tmp/wine-files"; \
             mkdir -p "${WINE_FILES_DIR}"; \
             if [ "${TARGETARCH}" = "arm64" ]; then \
+                dpkg --add-architecture armhf; \
                 apt-get update; \
                 apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                     ca-certificates curl wget gnupg xz-utils dpkg-dev; \
