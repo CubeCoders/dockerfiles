@@ -91,4 +91,4 @@ for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT
 done
 
 exec gosu amp:amp env -i "${keep_env[@]}" \
-  bash -c 'cd /AMP && exec "$0" "$@"' "${AMP_BIN}" "$@"
+  bash -c 'cd /AMP && exec $0 $@' "${AMP_BIN}" "$@"
