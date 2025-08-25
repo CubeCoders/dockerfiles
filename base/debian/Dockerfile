@@ -8,7 +8,7 @@ LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         AMP_CONTAINER="DOCKER"
 ENV         DEBIAN_FRONTEND="noninteractive"
-ENV         LD_LIBRARY_PATH="./:/opt/cubecoders/amp/:/AMP/"
+#ENV         LD_LIBRARY_PATH="./:/opt/cubecoders/amp/:/AMP/"
 
 ARG         TARGETARCH
 
