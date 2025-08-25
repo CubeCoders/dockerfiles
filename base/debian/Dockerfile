@@ -6,7 +6,7 @@ FROM        debian:bookworm-slim
 LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
 
-ENV         AMP_CONTAINER="DOCKER"
+ENV         AMP_CONTAINER="1"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         TARGETARCH
@@ -17,8 +17,8 @@ RUN         set -eux; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
-                coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus gosu \
-                tini tzdata locales \
+                coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
+                tini tzdata locales gosu \
                 libssl3 libcurl4 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
                 # Required for Core Keeper
                 xvfb xauth libxi6 \
@@ -72,14 +72,6 @@ RUN         set -eux; \
             esac; \
             apt-get install -y ./libssl1.1.deb; \
             rm libssl1.1.deb; \
-            \
-            # Install AMP instance manager
-            case "${TARGETARCH}" in \
-                amd64) wget -q https://cdn-repo.c7rs.com/ampinstmgr-latest.tgz;; \
-                arm64) wget -q https://cdn-repo.c7rs.com/aarch64/ampinstmgr-latest.tgz;; \
-            esac; \
-            tar -xzf ampinstmgr-latest.tgz -C /; \
-            rm ampinstmgr-latest.tgz; \
             \
             # Set up locales
             sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen; \
