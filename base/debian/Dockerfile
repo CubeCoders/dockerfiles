@@ -8,7 +8,6 @@ LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         AMP_CONTAINER="DOCKER"
 ENV         DEBIAN_FRONTEND="noninteractive"
-#ENV         LD_LIBRARY_PATH="./:/opt/cubecoders/amp/:/AMP/"
 
 ARG         TARGETARCH
 
@@ -18,7 +17,7 @@ RUN         set -eux; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
-                coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
+                coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus gosu \
                 tini tzdata locales \
                 libssl3 libcurl4 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
                 # Required for Core Keeper

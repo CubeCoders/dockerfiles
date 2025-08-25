@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#set -Eeuo pipefail
-#trap 'echo "[ERR] line $LINENO: $BASH_COMMAND (exit $?)"' ERR
+set -eo pipefail
 
 echo "[Info] AMPStart for Docker"
 ARCH=$(uname -m)
@@ -26,7 +25,7 @@ touch /home/amp/.gitconfig
 chown -R amp:amp /home/amp 2> /dev/null
 
 # Make AMP binary executable
-AMP_BIN="/AMP/AMP_Linux_${ARCH}"
+export AMP_BIN="/AMP/AMP_Linux_${ARCH}"
 [ -f "${AMP_BIN}" ] && chmod +x "${AMP_BIN}"
 
 # Install extra dependencies if needed
@@ -62,9 +61,7 @@ fi
 
 # Handoff
 echo "[Info] Starting AMP..."
-exec su -l \
-  -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,LANG,LANGUAGE,LC_ALL \
-  amp -c '
-    cd /AMP
-    exec '"${AMP_BIN}"' "$@"
-  ' -- _ "$@"
+exec gosu amp:amp bash -lc '
+  cd /AMP
+  exec "${AMP_BIN}" "$@"
+' -- _ "$@"
