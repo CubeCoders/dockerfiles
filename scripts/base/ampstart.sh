@@ -1,68 +1,81 @@
 #!/bin/bash
 
-set -Eeuo pipefail
-trap 'echo "[ERR] line $LINENO: $BASH_COMMAND (exit $?)"' ERR
+echo "[Info] AMPStart for Docker - v23.07.1"
+INSTALLED_DEPS_FILE="/AMP/InstalledDeps.json"
 
-echo "[Info] AMPStart for Docker"
-ARCH=$(uname -m)
-
-# Context check
-[ -z "${AMPUSERID}" ] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
-
-# Create /etc/machine-id (addresses Proton/dbus issues)
-mkdir -p /var/lib/dbus
-rm -f /etc/machine-id /var/lib/dbus/machine-id
-dbus-uuidgen --ensure=/etc/machine-id
-ln -s /etc/machine-id /var/lib/dbus/machine-id
-
-# Set up amp user and group
-: "${AMPUSERID:?[Error] AMPUSERID not set}"
-: "${AMPGROUPID:?[Error] AMPGROUPID not set}"
-echo "[Info] Setting up amp user and group..."
-getent group "${AMPGROUPID}" >/dev/null 2>&1 || groupadd -r -g "${AMPGROUPID}" amp
-id -u amp >/dev/null 2>&1 || useradd -m -d /home/amp -s /bin/bash -c "AMP Process User" -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
-usermod -aG tty amp
-touch /home/amp/.gitconfig
-chown -R amp:amp /home/amp 2>/dev/null
-
-# Make AMP binary executable
-export AMP_BIN="/AMP/AMP_Linux_${ARCH}"
-[ -f "${AMP_BIN}" ] && chmod +x "${AMP_BIN}"
-
-# Install extra dependencies if needed
-REQUIRED_DEPS=()
-if [[ -n "${AMP_CONTAINER_DEPS:-}" ]]; then
-    # shellcheck disable=SC2207
-    REQUIRED_DEPS=($(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" || echo))
-fi
-if ((${#REQUIRED_DEPS[@]})); then
-    echo "[Info] Installing extra dependencies..."
-    apt-get update
-    apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends --allow-downgrades "${REQUIRED_DEPS[@]}"
-    apt-get clean
-    rm -rf /var/lib/apt/lists/*
+if [ -z "${AMPUSERID}" ]; then
+  echo "[Info] This docker image cannot be used directly by itself - it must be started by ampinstmgr"
+  exit 100
 fi
 
-# Set custom mountpoint permissions if needed
-if [ -n "${AMP_MOUNTPOINTS}" ]; then
-    echo "[Info] Updating custom mountpoint permissions..." 
-    IFS=':' read -r -a dirs <<< "${AMP_MOUNTPOINTS}"
-    for dir in "${dirs[@]}"; do
-        [ -n "${dir}" ] || continue
-        chown -R amp:amp "${dir}"
-    done
+#Check if the AMP user already exists
+getent passwd amp &> /dev/null
+
+if [ "$?" == "0" ]; then
+    echo "[Info] AMP user already exists, continuing..."
+else
+    echo "[Info] Performing first-time container setup..."
+    groupadd -r -g $AMPGROUPID amp > /dev/null
+    useradd -m -d /home/amp -s /bin/bash -c "AMP Process User" -u $AMPUSERID -g $AMPGROUPID amp > /dev/null
+    touch /home/amp/.gitconfig
+    chown -R amp:amp /home/amp 2> /dev/null
+    usermod -aG tty amp
+    chmod +x /AMP/AMP_Linux_x86_64
+    echo "[Info] Container setup complete."
 fi
 
-# Run custom start script if it exists
-if [ -f "/AMP/customstart.sh" ]; then
-    echo "[Info] Running customstart.sh..."
-    chmod +x /AMP/customstart.sh
-    /AMP/customstart.sh
+if [ -f "$INSTALLED_DEPS_FILE" ]; then
+  INSTALLED_DEPS=$(jq -r '.[]' $INSTALLED_DEPS_FILE)
+else
+  INSTALLED_DEPS=""
+  echo "[]" > $INSTALLED_DEPS_FILE
 fi
 
-# Handoff
-echo "[Info] Starting AMP..."
+REQUIRED_DEPS=$(echo $AMP_CONTAINER_DEPS | jq -r '.[]')
+
+DEPS_TO_INSTALL=()
+for DEP in $REQUIRED_DEPS; do
+  if ! [[ $INSTALLED_DEPS =~ $DEP ]]; then
+    DEPS_TO_INSTALL+=($DEP)
+  fi
+done
+
+if [ ${#DEPS_TO_INSTALL[@]} -ne 0 ]; then
+  echo "[Info] Installing dependencies..."
+  apt-get update
+  apt-get install --allow-downgrades -y ${DEPS_TO_INSTALL[@]}
+
+#  for DEP in ${DEPS_TO_INSTALL[@]}; do
+#    jq --arg dep "$DEP" '. += [$dep]' $INSTALLED_DEPS_FILE > temp && mv temp $INSTALLED_DEPS_FILE
+#  done
+
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+  echo "[Info] Installation complete."
+else
+  echo "[Info] No missing dependencies to install."
+fi
+
+if [ -n "$AMP_MOUNTPOINTS" ]; then
+  echo "[Info] Updating mountpoint permissions..."
+  IFS=':' read -r -a dirs <<< "$AMP_MOUNTPOINTS"
+
+  for dir in "${dirs[@]}"; do
+    echo "[Info] - Updating $dir..."
+    chown -R amp:amp "$dir"
+  done
+fi
+
+export AMPHOSTPLATFORM
+export AMP_CONTAINER
+export AMPMEMORYLIMIT
+export AMPSWAPLIMIT
+export AMPCONTAINERCPUS
+export AMP_CONTAINER_HOST_NETWORK
+#export AMP_SHARED_INSTALL
+#export DOTNET_GCHeapHardLimit=0x10000000
+
 ARGS=$@
-exec su -l -s /bin/bash \
-    -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,LANG,LANGUAGE,LC_ALL \
-    amp -c "export LD_LIBRARY_PATH=/opt/cubecoders/amp:/AMP; ampinstmgr -sync-certs; cd /AMP; HOME=/home/amp ${AMP_BIN} ${ARGS}"
+exec su -l -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMP_CONTAINER_HOST_NETWORK,AMPSWAPLIMIT,AMPCONTAINERCPUS,LANG,LANGUAGE,LC_ALL -c "export LD_LIBRARY_PATH=/opt/cubecoders/amp:/AMP; cd /AMP; HOME=/home/amp /AMP/AMP_Linux_x86_64 ${ARGS}; exit $?" -- amp
+exit $?
+
