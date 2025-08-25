@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo "[Info] AMPStart for Docker - v23.07.1"
-INSTALLED_DEPS_FILE="/AMP/InstalledDeps.json"
+echo "[Info] AMPStart for Docker"
 
 if [ -z "${AMPUSERID}" ]; then
   echo "[Info] This docker image cannot be used directly by itself - it must be started by ampinstmgr"
@@ -76,6 +75,6 @@ export AMP_CONTAINER_HOST_NETWORK
 #export DOTNET_GCHeapHardLimit=0x10000000
 
 ARGS=$@
-exec su -l -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMP_CONTAINER_HOST_NETWORK,AMPSWAPLIMIT,AMPCONTAINERCPUS,LANG,LANGUAGE,LC_ALL -c "export LD_LIBRARY_PATH=/opt/cubecoders/amp:/AMP; cd /AMP; HOME=/home/amp /AMP/AMP_Linux_x86_64 ${ARGS}; exit $?" -- amp
+exec su -l -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMP_CONTAINER_HOST_NETWORK,AMPSWAPLIMIT,AMPCONTAINERCPUS,LANG,LANGUAGE,LC_ALL -c "cd /AMP; HOME=/home/amp /AMP/AMP_Linux_x86_64 ${ARGS}; exit $?" -- amp
 exit $?
 
