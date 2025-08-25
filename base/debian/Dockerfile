@@ -73,6 +73,14 @@ RUN         set -eux; \
             apt-get install -y ./libssl1.1.deb; \
             rm libssl1.1.deb; \
             \
+            # Install AMP instance manager
+            case "${TARGETARCH}" in \
+                amd64) wget -q https://cdn-repo.c7rs.com/ampinstmgr-latest.tgz;; \
+                arm64) wget -q https://cdn-repo.c7rs.com/aarch64/ampinstmgr-latest.tgz;; \
+            esac; \
+            tar -xzf ampinstmgr-latest.tgz -C /; \
+            rm ampinstmgr-latest.tgz; \
+            \
             # Set up locales
             sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen; \
             locale-gen; \
