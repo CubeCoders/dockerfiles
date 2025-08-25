@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#set -e -o pipefail
+set -Eeuo pipefail
+trap 'echo "[ERR] line $LINENO: $BASH_COMMAND (exit $?)"' ERR
 
 echo "[Info] AMPStart for Docker"
 ARCH=$(uname -m)
