@@ -65,4 +65,4 @@ echo "[Info] Starting AMP..."
 ARGS=$@
 exec su -l -s /bin/bash \
     -w AMPHOSTPLATFORM,AMP_CONTAINER,AMPMEMORYLIMIT,AMPSWAPLIMIT,AMPCONTAINERCPUS,AMP_CONTAINER_HOST_NETWORK,LANG,LANGUAGE,LC_ALL \
-    amp -c "export LD_LIBRARY_PATH=/opt/cubecoders/amp:/AMP; ampinstmgr -sync-certs; cd /AMP; HOME=/home/amp exec ${AMP_BIN} ${ARGS}"
+    amp -c "export LD_LIBRARY_PATH=/opt/cubecoders/amp:/AMP; ampinstmgr -sync-certs; cd /AMP; HOME=/home/amp ${AMP_BIN} ${ARGS}"
