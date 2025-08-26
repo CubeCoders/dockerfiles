@@ -6,8 +6,7 @@ FROM        --platform=linux/amd64 debian:bookworm-slim AS depsfinder
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         WINE_DIST="bookworm"
-#ARG         WINE_BRANCHES="stable devel staging 10-stable 9-stable"
-ARG         WINE_BRANCHES="stable devel"
+ARG         WINE_BRANCHES="stable devel staging 10-stable 9-stable"
 
 COPY        scripts/wine/find-deps.sh /usr/local/bin/find-deps.sh
 COPY        scripts/wine/create-common-deps-list.sh /usr/local/bin/create-common-deps-list.sh
