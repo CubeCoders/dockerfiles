@@ -63,7 +63,7 @@ jobs:
         with:
           context: .
           file: ./wine/common/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
           tags: ghcr.io/cubecoders/amp:wine-common
@@ -101,7 +101,7 @@ jobs:
         with:
           context: .
           file: ./wine/${{ matrix.version }}/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
           tags: ghcr.io/cubecoders/amp:wine-${{ matrix.version }}
