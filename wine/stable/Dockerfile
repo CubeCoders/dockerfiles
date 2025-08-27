@@ -38,9 +38,6 @@ RUN         set -eux; \
                     xargs -ra /tmp/wine-files/wine-${WINE_BRANCH}-deps-arm64.txt \
                         apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
                     \
-                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
-                        dpkg-dev; \
-                    \
                     for n in \
                         "wine-${WINE_BRANCH}-amd64_${WINE_BUILD}_amd64.deb" \
                         "wine-${WINE_BRANCH}_${WINE_BUILD}_amd64.deb" \
