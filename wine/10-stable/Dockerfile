@@ -32,7 +32,6 @@ RUN         set -eux; \
                     \
                     apt-get update; \
                     apt-get install -o APT::Keep-Downloaded-Packages="false" -y --install-recommends \
-                        apt-get install -o APT::Keep-Downloaded-Packages="false" -y --install-recommends \
                         wine-${WINE_BRANCH}-i386=${WINE_BUILD} \
                         wine-${WINE_BRANCH}-amd64=${WINE_BUILD} \
                         wine-${WINE_BRANCH}=${WINE_BUILD} \
