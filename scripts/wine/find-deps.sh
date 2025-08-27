@@ -18,9 +18,12 @@ _print_inst() {
   ' | sort -u
 }
 
+STATUS=/tmp/dpkg.status.empty
+: > "$STATUS"
+
 case "${BUILD}" in
   stable|devel|staging)
-    apt-get -s install -y -o APT::Install-Recommends=1 "winehq-${BUILD}" \
+    apt-get -s install -y -o Dir::State::status="$STATUS" -o APT::Install-Recommends=1 "winehq-${BUILD}" \
     | _print_inst
     ;;
 
@@ -41,7 +44,7 @@ case "${BUILD}" in
       exit 2
     fi
 
-    apt-get -s install -y -o APT::Install-Recommends=1 \
+    apt-get -s install -y -o Dir::State::status="$STATUS" -o APT::Install-Recommends=1 \
       "wine-${WINE_BRANCH}-i386=${WINE_BUILD}" \
       "wine-${WINE_BRANCH}-amd64=${WINE_BUILD}" \
       "wine-${WINE_BRANCH}=${WINE_BUILD}" \

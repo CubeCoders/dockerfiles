@@ -24,12 +24,13 @@ RUN         set -eux; \
             "https://dl.winehq.org/wine-builds/debian/dists/${WINE_DIST}/winehq-${WINE_DIST}.sources"; \
             apt-get update; \
             \
-            mkdir -p /tmp/wine-files; \
             for b in ${WINE_BRANCHES}; do \
-                /usr/local/bin/find-deps.sh "${b}" >"/tmp/wine-files/${b}.amd64.txt"; \
+                /usr/local/bin/find-deps.sh "${b}" >"/tmp/wine-${b}-deps-amd64.txt"; \
             done; \
-            /usr/local/bin/create-common-deps-list.sh /tmp/wine-files/*.amd64.txt \
-                > /tmp/wine-files/wine-common-deps-amd64.txt
+            mkdir -p /tmp/wine-files; \
+            /usr/local/bin/create-common-deps-list.sh /tmp/wine-*-deps-amd64.txt \
+                > /tmp/wine-files/wine-common-deps-amd64.txt; \
+            mv /tmp/wine-*-deps-amd64.txt /tmp/wine-files/
 
 FROM        debian:bookworm-slim AS depsmapper
 
@@ -45,9 +46,14 @@ RUN         chmod +x /usr/local/bin/map-x86-deps-to-arm.sh
 # Generate common dependencies list for arm64
 RUN         set -eux; \
             if [ "${TARGETARCH}" = "arm64" ]; then \
-                /usr/local/bin/map-x86-deps-to-arm.sh \
-                    < /tmp/wine-files/wine-common-deps-amd64.txt \
-                    > /tmp/wine-files/wine-common-deps-arm64.txt; \
+                dpkg --add-architecture armhf; \
+                apt-get update; \
+                apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
+                    xz-utils; \
+                for f in /tmp/wine-files/*-deps-amd64.txt; do \
+                    base="$(basename "$f" -deps-amd64.txt)"; \
+                    /usr/local/bin/map-x86-deps-to-arm.sh "$f" >"/tmp/wine-files/${base}-deps-arm64.txt"; \
+                done; \
             fi
 
 FROM        ghcr.io/cubecoders/amp:debian
@@ -67,6 +73,5 @@ RUN         set -eux; \
                 cabextract winbind python3; \
             xargs -a "/tmp/wine-files/wine-common-deps-${TARGETARCH}.txt" \
                 apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
-            rm -rf /tmp/wine-files; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
