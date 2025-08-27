@@ -43,38 +43,47 @@ chown -R amp:amp /home/amp
 
 # Make AMP binary executable
 AMP_BIN="/AMP/AMP_Linux_${ARCH}"
-[ -f "${AMP_BIN}" ] && chmod +x "${AMP_BIN}"
+chmod +x "${AMP_BIN}" || { echo "[Error] AMP binary not found or cannot be made executable"; exit 101; }
 
-# Install extra dependencies if needed
+# Install extra dependencies if needed (non-fatal)
 REQUIRED_DEPS=()
 if [[ -n "${AMP_CONTAINER_DEPS:-}" ]]; then
   # shellcheck disable=SC2207
-  REQUIRED_DEPS=($(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" || echo))
+  REQUIRED_DEPS=($(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" 2>/dev/null || echo))
 fi
 
 if ((${#REQUIRED_DEPS[@]})); then
   echo "[Info] Installing extra dependencies..."
-  apt-get update
-  apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends --allow-downgrades "${REQUIRED_DEPS[@]}"
-  apt-get clean
-  rm -rf /var/lib/apt/lists/*
+  (
+    set +e
+    apt-get update || echo "[Warn] apt-get update failed; continuing"
+    apt-get install -y --no-install-recommends --allow-downgrades \
+      -o APT::Keep-Downloaded-Packages="false" "${REQUIRED_DEPS[@]}" \
+      || echo "[Warn] apt-get install failed (bad package name?); continuing"
+    apt-get clean >/dev/null 2>&1 || true
+    rm -rf /var/lib/apt/lists/* || true
+  )
 fi
 
-# Set custom mountpoint permissions if needed
-if [ -n "${AMP_MOUNTPOINTS}" ]; then
-  echo "[Info] Updating custom mountpoint permissions..." 
+# Set custom mountpoint permissions if needed (non-fatal)
+if [[ -n "${AMP_MOUNTPOINTS:-}" ]]; then
+  echo "[Info] Updating custom mountpoint permissions..."
   IFS=':' read -r -a dirs <<< "${AMP_MOUNTPOINTS}"
   for dir in "${dirs[@]}"; do
-    [ -n "${dir}" ] || continue
-    chown -R amp:amp "${dir}"
+    [[ -n "${dir}" ]] || continue
+    if [[ -e "${dir}" ]]; then
+      chown -R amp:"${AMPGROUPID}" "${dir}" 2>/dev/null || echo "[Warn] chown failed for ${dir}; continuing"
+    else
+      echo "[Warn] Mountpoint not found: ${dir}; skipping"
+    fi
   done
 fi
 
-# Run custom start script if it exists
-if [ -f "/AMP/customstart.sh" ]; then
+# Run custom start script if it exists (non-fatal)
+if [[ -f "/AMP/customstart.sh" ]]; then
   echo "[Info] Running customstart.sh..."
-  chmod +x /AMP/customstart.sh
-  /AMP/customstart.sh
+  chmod +x /AMP/customstart.sh 2>/dev/null || true
+  ( set +e; /AMP/customstart.sh; rc=$?; ((rc==0)) || echo "[Warn] customstart.sh exited with $rc; continuing" )
 fi
 
 # Handoff
