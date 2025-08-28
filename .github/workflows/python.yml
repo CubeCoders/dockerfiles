@@ -34,6 +34,7 @@ jobs:
           filters: |
             only_python:
               - 'python/**'
+              - 'scripts/python/**'
               - '!base/**'
               - '!scripts/base/ampstart.sh'
 

@@ -34,6 +34,7 @@ jobs:
           filters: |
             only_wine:
               - 'wine/**'
+              - 'scripts/wine/**''
               - '!base/**'
               - '!scripts/base/ampstart.sh'
 
