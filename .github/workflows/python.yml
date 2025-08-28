@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - python/**
+      - scripts/python/**
 
 permissions:
   contents: read
