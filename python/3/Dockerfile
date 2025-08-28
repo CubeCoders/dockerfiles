@@ -63,8 +63,11 @@ COPY        --from=py311 /tmp/3.11-run-deps.txt /tmp/3.11-run-deps.txt
 
 RUN         set -eux; \
             apt-get update; \
-            # Purge gdb from base image to remove conflicting Python libs
-            apt-get purge gdb -y --autoremove; \
+            # Purge system Python binaries and libs
+            PYTHON_PKGS="$(dpkg-query -W -f='${binary:Package}\n' \
+            | awk '/^(python3($|[.:_-])|libpython3($|[.:_-]))/ {print}' \
+            | sort -u)"; \
+            printf '%s\n' "${PYTHON_PKGS}" | xargs -r apt-get purge --auto-remove -y; \
             \
             sort -u /tmp/*-run-deps.txt \
             | awk 'NF && $1 !~ /^#/' \
