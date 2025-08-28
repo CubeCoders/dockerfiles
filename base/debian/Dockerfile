@@ -23,7 +23,7 @@ RUN         set -eux; \
                 # Required for Core Keeper
                 xvfb xauth libxi6 \
                 # Required for Valheim crossplay (and variously some others)
-                libc6 libatomic1 libpulse-dev \
+                libc6 libatomic1 libpulse0 libpulse-mainloop-glib0 \
                 # Required for BeamMP
                 liblua5.3-0 \
                 # Required for Eco
