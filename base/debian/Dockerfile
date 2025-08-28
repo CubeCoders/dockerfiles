@@ -29,7 +29,7 @@ RUN         set -eux; \
                 # Required for Eco
                 libgdiplus \
                 # Required for Pavlov VR (and variously some others)
-                gdb libc++-dev; \
+                gdb libc++1 libc++abi1 libunwind8 libgcc-s1; \
             \  
             case "$TARGETARCH" in \
                 amd64) \
