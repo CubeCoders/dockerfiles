@@ -1,5 +1,17 @@
-# Python image for AMP containers using Python 3.11
+# Python image for AMP containers using Python 3.11 from upstream
 # ghcr.io/cubecoders/amp:python-3.11
+
+FROM        python:3.11-slim-bookworm AS py311
+
+ENV         DEBIAN_FRONTEND="noninteractive"
+
+ARG         PYTHON_VERSION="3.11"
+
+COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
+RUN         chmod +x /usr/local/bin/find-deps.sh
+
+RUN         set -eux; \
+            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
 
 FROM        ghcr.io/cubecoders/amp:debian
 LABEL       org.opencontainers.image.licenses=MIT
@@ -7,10 +19,25 @@ LABEL       org.opencontainers.image.licenses=MIT
 ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
-# System Python (3.11) from Debian
+ARG         PYTHON_VERSION="3.11"
+
+# Drop in upstream Python 3.11
+COPY        --from=py311 /usr/local/ /usr/local/
+
+COPY        --from=py311 /tmp/${PYTHON_VERSION}-run-deps.txt /tmp/${PYTHON_VERSION}-run-deps.txt
+
 RUN         set -eux; \
             apt-get update; \
-            apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
-                python3 python3-venv python3-pip; \
+            # Purge gdb from base image to remove conflicting Python libs
+            apt-get purge gdb -y --autoremove; \
+            \
+            sort -u /tmp/${PYTHON_VERSION}-run-deps.txt \
+            | awk 'NF && $1 !~ /^#/' \
+            | xargs -r apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
             apt-get clean; \
-            rm -rf /var/lib/apt/lists/*
+            rm -rf /var/lib/apt/lists/* /tmp/${PYTHON_VERSION}-run-deps.txt; \
+            \
+            python${PYTHON_VERSION} -m pip install --no-cache-dir --upgrade pip setuptools wheel; \
+            for shim in python python3 python${PYTHON_VERSION} pip pip3 pip${PYTHON_VERSION}; do \
+                ln -sf "/usr/local/bin/${shim}" "/usr/bin/${shim}"; \
+            done
