@@ -39,7 +39,7 @@ RUN         set -eux; \
                         # Required for steamcmd
                         libgcc-s1:i386 \
                         # Others
-                        libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386 \
+                        libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4:i386 libcurl3-gnutls:i386 \
                         libncurses6:i386 libncurses5:i386 libtinfo6:i386 libtinfo5:i386 libsdl2-2.0-0:i386 libssl3:i386; \
                     ;; \
                 \
@@ -50,7 +50,7 @@ RUN         set -eux; \
                         # Required for steamcmd
                         libgcc-s1:armhf \
                         # Others
-                        libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4:armhf libcurl3-gnutls:armhf libcurl4-gnutls-dev:armhf \
+                        libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4:armhf libcurl3-gnutls:armhf \
                         libncurses6:armhf libncurses5:armhf libtinfo6:armhf libtinfo5:armhf libsdl2-2.0-0:armhf libssl3:armhf; \
                     \
                     # Add box86/box64
