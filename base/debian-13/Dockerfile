@@ -19,7 +19,7 @@ RUN         set -eux; \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales gosu \
-                libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
+                libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 libicu76 \
                 # Required for Core Keeper
                 xvfb xauth libxi6 \
                 # Required for Valheim crossplay (and variously some others)
