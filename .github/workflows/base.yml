@@ -23,6 +23,7 @@ jobs:
       matrix:
         base:
           - debian
+          - debian-13
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
