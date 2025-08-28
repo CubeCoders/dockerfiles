@@ -1,4 +1,4 @@
-# Python image for AMP containers including Python 3.10, 3.11 (default) and 3.12 from upstream
+# Python image for AMP containers including Python 3.10, 3.11 (default), 3.12 and 3.13 from upstream
 # ghcr.io/cubecoders/amp:python-3
 
 FROM        python:3.10-slim-bookworm AS py310
@@ -37,6 +37,18 @@ RUN         chmod +x /usr/local/bin/find-deps.sh
 RUN         set -eux; \
             /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
 
+FROM        python:3.13-slim-bookworm AS py313
+
+ENV         DEBIAN_FRONTEND="noninteractive"
+
+ARG         PYTHON_VERSION="3.13"
+
+COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
+RUN         chmod +x /usr/local/bin/find-deps.sh
+
+RUN         set -eux; \
+            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
+   
 FROM        ghcr.io/cubecoders/amp:debian
 LABEL       org.opencontainers.image.licenses=MIT
 
@@ -44,7 +56,7 @@ ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         PYTHON_DEFAULT="3.11"
-ARG         PYTHON_NON_DEFAULT="3.10 3.12"
+ARG         PYTHON_NON_DEFAULT="3.10 3.12 3.13"
 
 # Drop in upstream Python 3.10
 COPY        --from=py310 /usr/local/ /usr/local/
@@ -55,6 +67,11 @@ COPY        --from=py310 /tmp/3.10-run-deps.txt /tmp/3.10-run-deps.txt
 COPY        --from=py312 /usr/local/ /usr/local/
 
 COPY        --from=py312 /tmp/3.12-run-deps.txt /tmp/3.12-run-deps.txt
+
+# Drop in upstream Python 3.13
+COPY        --from=py313 /usr/local/ /usr/local/
+
+COPY        --from=py313 /tmp/3.13-run-deps.txt /tmp/3.13-run-deps.txt
 
 # Drop in upstream Python 3.11 (default last)
 COPY        --from=py311 /usr/local/ /usr/local/
