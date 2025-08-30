@@ -9,7 +9,7 @@ on:
     paths:
       - base/**
       - scripts/base/ampstart.sh
-permissions:    
+permissions:
   contents: read
   packages: write
 
@@ -24,6 +24,7 @@ jobs:
         base:
           - debian
           - debian-13
+          - ubuntu
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3

@@ -1,7 +1,7 @@
-# Base Debian 12 image for AMP containers
-# ghcr.io/cubecoders/amp:debian
+# Base Ubuntu 24.04 image for AMP containers
+# ghcr.io/cubecoders/amp:ubuntu
 
-FROM        debian:bookworm-slim
+FROM        ubuntu:noble
 
 LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
@@ -19,7 +19,7 @@ RUN         set -eux; \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales gosu \
-                libssl3 libcurl4 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
+                libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
                 # Required for Core Keeper
                 xvfb xauth libxi6 \
                 # Required for Valheim crossplay (and variously some others)
@@ -39,8 +39,8 @@ RUN         set -eux; \
                         # Required for steamcmd
                         libgcc-s1:i386 \
                         # Others
-                        libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4:i386 libcurl3-gnutls:i386 \
-                        libncurses6:i386 libncurses5:i386 libtinfo6:i386 libtinfo5:i386 libsdl2-2.0-0:i386 libssl3:i386; \
+                        libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4t64:i386 libcurl3t64-gnutls:i386 \
+                        libncurses6:i386 libtinfo6:i386 libsdl2-2.0-0:i386 libssl3t64:i386; \
                     ;; \
                 \
                 arm64) \
@@ -50,8 +50,8 @@ RUN         set -eux; \
                         # Required for steamcmd
                         libgcc-s1:armhf \
                         # Others
-                        libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4:armhf libcurl3-gnutls:armhf \
-                        libncurses6:armhf libncurses5:armhf libtinfo6:armhf libtinfo5:armhf libsdl2-2.0-0:armhf libssl3:armhf; \
+                        libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4t64:armhf libcurl3t64-gnutls:armhf \
+                        libncurses6:armhf libtinfo6:armhf libsdl2-2.0-0:armhf libssl3t64:armhf; \
                     \
                     # Add box86/box64
                     install -d -m 0755 /etc/apt/keyrings; \
