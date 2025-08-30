@@ -1,7 +1,8 @@
 # Wine common dependencies image for AMP containers
 # ghcr.io/cubecoders/amp:wine-common
 
-FROM        --platform=linux/amd64 debian:bookworm-slim AS depsfinder
+ARG         DEPSFINDER_PLATFORM=linux/amd64
+FROM        --platform=${DEPSFINDER_PLATFORM} debian:bookworm-slim AS depsfinder
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 
