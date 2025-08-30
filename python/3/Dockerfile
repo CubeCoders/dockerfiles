@@ -11,7 +11,7 @@ COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
 RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
-            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
             
 FROM        python:3.11-slim-bookworm AS py311
 
@@ -23,7 +23,7 @@ COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
 RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
-            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
 
 FROM        python:3.12-slim-bookworm AS py312
 
@@ -35,7 +35,7 @@ COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
 RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
-            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
 
 FROM        python:3.13-slim-bookworm AS py313
 
@@ -47,7 +47,7 @@ COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
 RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
-            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
    
 FROM        ghcr.io/cubecoders/amp:debian
 LABEL       org.opencontainers.image.licenses=MIT

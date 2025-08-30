@@ -11,7 +11,7 @@ COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
 RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
-            /usr/local/bin/find-deps.sh ${PYTHON_VERSION} >/tmp/${PYTHON_VERSION}-run-deps.txt
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
 
 FROM        ghcr.io/cubecoders/amp:debian
 LABEL       org.opencontainers.image.licenses=MIT

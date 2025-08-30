@@ -20,6 +20,8 @@ RUN         set -eux; \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales gosu \
                 libssl3 libcurl4 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
+                # Required for Proton
+                python3 \
                 # Required for Core Keeper
                 xvfb xauth libxi6 \
                 # Required for Valheim crossplay (and variously some others)
