@@ -38,7 +38,7 @@ jobs:
 
   build_and_push:
     needs: [check_changes]
-    if: ${{ github.repository_owner == 'CubeCoders' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.only_mono == 'true') || github.event_name == 'workflow_dispatch' ) }}
+    if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.only_mono == 'true') || github.event_name == 'workflow_dispatch' ) }}
     name: 'amp:mono-${{ matrix.mono }}'
     runs-on: ubuntu-latest
     strategy:
