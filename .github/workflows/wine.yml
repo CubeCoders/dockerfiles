@@ -56,9 +56,8 @@ jobs:
 
       - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: cubecoders
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: docker/build-push-action@v6
         with:
@@ -67,7 +66,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
-          tags: ghcr.io/cubecoders/amp:wine-common
+          tags: cubecoders/ampbase:wine-common
           cache-from: type=gha,scope=${{ github.workflow }}-common
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-common
           provenance: mode=max
@@ -94,9 +93,8 @@ jobs:
 
       - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: cubecoders
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: docker/build-push-action@v6
         with:
@@ -105,7 +103,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
-          tags: ghcr.io/cubecoders/amp:wine-${{ matrix.version }}
+          tags: cubecoders/ampbase:wine-${{ matrix.version }}
           cache-from: |
             type=gha,scope=${{ github.workflow }}-wine-common
             type=gha,scope=${{ github.workflow }}-wine-${{ matrix.version }}

@@ -1,7 +1,7 @@
 # Java image for AMP containers including all Temurin LTS versions
-# ghcr.io/cubecoders/amp:java-lts
+# cubecoders/ampbase:java-lts
 
-FROM        ghcr.io/cubecoders/amp:debian
+FROM        cubecoders/ampbase:debian
 
 LABEL       org.opencontainers.image.licenses=MIT
 

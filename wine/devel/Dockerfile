@@ -1,7 +1,7 @@
 # Wine image for AMP containers based on Wine devel
-# ghcr.io/cubecoders/amp:wine-devel
+# cubecoders/ampbase:wine-devel
 
-FROM        ghcr.io/cubecoders/amp:wine-common
+FROM        cubecoders/ampbase:wine-common
 
 LABEL       org.opencontainers.image.licenses=MIT
 

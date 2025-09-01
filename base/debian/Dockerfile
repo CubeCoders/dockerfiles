@@ -1,5 +1,5 @@
 # Base Debian 12 image for AMP containers
-# ghcr.io/cubecoders/amp:debian
+# cubecoders/ampbase:debian
 
 FROM        debian:bookworm-slim
 
