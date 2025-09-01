@@ -1,5 +1,5 @@
 # Base Ubuntu 24.04 image for AMP containers
-# cubecoders/amp:ubuntu
+# cubecoders/ampbase:ubuntu
 
 FROM        ubuntu:noble
 

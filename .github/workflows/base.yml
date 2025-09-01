@@ -43,7 +43,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           tags: |
-            cubecoders/amp:${{ matrix.base }}
+            cubecoders/ampbase:${{ matrix.base }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.base }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.base }}
           provenance: mode=max
@@ -53,7 +53,7 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: cubecoders/amp
+          repository: cubecoders/ampbase
           short-description: "Images for AMP's Docker instances."
 
 

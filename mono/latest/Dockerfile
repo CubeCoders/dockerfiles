@@ -1,7 +1,7 @@
 # Mono image for AMP containers
-# cubecoders/amp:mono-latest
+# cubecoders/ampbase:mono-latest
 
-FROM        cubecoders/amp:debian
+FROM        cubecoders/ampbase:debian
 
 LABEL       org.opencontainers.image.licenses=MIT
 

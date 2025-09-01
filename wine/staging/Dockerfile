@@ -1,7 +1,7 @@
 # Wine image for AMP containers based on Wine staging
-# cubecoders/amp:wine-staging
+# cubecoders/ampbase:wine-staging
 
-FROM        cubecoders/amp:wine-common
+FROM        cubecoders/ampbase:wine-common
 
 LABEL       org.opencontainers.image.licenses=MIT
 

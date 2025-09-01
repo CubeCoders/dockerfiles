@@ -1,5 +1,5 @@
 # Wine common dependencies image for AMP containers
-# cubecoders/amp:wine-common
+# cubecoders/ampbase:wine-common
 
 ARG         DEPSFINDER_PLATFORM=linux/amd64
 FROM        --platform=${DEPSFINDER_PLATFORM} debian:bookworm-slim AS depsfinder
@@ -57,7 +57,7 @@ RUN         set -eux; \
                 done; \
             fi
 
-FROM        cubecoders/amp:debian
+FROM        cubecoders/ampbase:debian
 
 LABEL       org.opencontainers.image.licenses=MIT
 

@@ -73,7 +73,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
-          tags: cubecoders/amp:python-${{ matrix.python }}
+          tags: cubecoders/ampbase:python-${{ matrix.python }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.python }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.python }}
           provenance: mode=max

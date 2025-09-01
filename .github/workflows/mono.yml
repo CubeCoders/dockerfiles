@@ -67,7 +67,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           pull: true
-          tags: cubecoders/amp:mono-${{ matrix.mono }}
+          tags: cubecoders/ampbase:mono-${{ matrix.mono }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.mono }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.mono }}
           provenance: mode=max
