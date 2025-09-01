@@ -1,5 +1,5 @@
 # Python image for AMP containers using Python 3.13 from upstream
-# ghcr.io/cubecoders/amp:python-3.13
+# cubecoders/amp:python-3.13
 
 FROM        python:3.13-slim-bookworm AS py313
 
@@ -13,7 +13,7 @@ RUN         chmod +x /usr/local/bin/find-deps.sh
 RUN         set -eux; \
             /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
 
-FROM        ghcr.io/cubecoders/amp:debian
+FROM        cubecoders/amp:debian
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"

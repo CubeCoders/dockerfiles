@@ -1,5 +1,5 @@
 # Base Debian 13 image for AMP containers
-# ghcr.io/cubecoders/amp:debian-13
+# cubecoders/amp:debian-13
 
 FROM        debian:trixie-slim
 

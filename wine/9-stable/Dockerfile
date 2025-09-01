@@ -1,7 +1,7 @@
 # Wine image for AMP containers based on Wine 9 stable
-# ghcr.io/cubecoders/amp:wine-9-stable
+# cubecoders/amp:wine-9-stable
 
-FROM        ghcr.io/cubecoders/amp:wine-common
+FROM        cubecoders/amp:wine-common
 
 LABEL       org.opencontainers.image.licenses=MIT
 
