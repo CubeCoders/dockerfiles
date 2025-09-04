@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         mono:
-          - latest
+          - 'latest'
 
     steps:
       - uses: actions/checkout@v4

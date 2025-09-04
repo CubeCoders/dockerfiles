@@ -92,6 +92,8 @@ RUN         set -eux; \
 
 ENV         LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
 
+STOPSIGNAL  SIGINT
+
 COPY        ./scripts/base/ampstart.sh /ampstart.sh
 RUN         chmod +x /ampstart.sh
 ENTRYPOINT  ["/usr/bin/tini", "-g", "--", "/ampstart.sh"]

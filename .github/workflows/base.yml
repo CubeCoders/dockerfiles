@@ -22,9 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         base:
-          - debian
-          - debian-13
-          - ubuntu
+          - 'debian'
+          - 'debian-13'
+          - 'ubuntu'
 
     steps:
       - uses: actions/checkout@v4
