@@ -96,9 +96,16 @@ keep_env=(
   PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
   MAIL=/var/mail/amp
 )
+# Always keep these AMP_ env vars if set
 for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
   if [[ -n "${!v-}" ]]; then keep_env+=("$v=${!v}"); fi
 done
+# Extra passthrough of env vars listed in AMP_ADDITIONAL_ENV_VARS in the Dockerfile
+if [[ -n "${AMP_ADDITIONAL_ENV_VARS-}" ]]; then
+  for v in ${AMP_ADDITIONAL_ENV_VARS}; do
+    if [[ -n "${!v-}" ]]; then keep_env+=("$v=${!v}"); fi
+  done
+fi
 
 exec gosu amp:amp env -i "${keep_env[@]}" \
   bash -c "cd /AMP && exec ${AMP_BIN} ${ARGS}"

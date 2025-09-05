@@ -17,6 +17,7 @@ FROM        cubecoders/ampbase:debian
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"
+ENV         AMP_ADDITIONAL_ENV_VARS="PIP_DISABLE_PIP_VERSION_CHECK"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         PYTHON_VERSION="3.12"
