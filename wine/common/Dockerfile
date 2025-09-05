@@ -2,11 +2,11 @@
 # cubecoders/ampbase:wine-common
 
 ARG         DEPSFINDER_PLATFORM=linux/amd64
-FROM        --platform=${DEPSFINDER_PLATFORM} debian:bookworm-slim AS depsfinder
+FROM        --platform=${DEPSFINDER_PLATFORM} debian:trixie-slim AS depsfinder
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 
-ARG         WINE_DIST="bookworm"
+ARG         WINE_DIST="trixie"
 ARG         WINE_BRANCHES="stable devel staging 10-stable 9-stable"
 
 COPY        scripts/wine/find-deps.sh /usr/local/bin/find-deps.sh
@@ -33,7 +33,7 @@ RUN         set -eux; \
                 > /tmp/wine-files/wine-common-deps-amd64.txt; \
             mv /tmp/wine-*-deps-amd64.txt /tmp/wine-files/
 
-FROM        debian:bookworm-slim AS depsmapper
+FROM        debian:trixie-slim AS depsmapper
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 

@@ -67,8 +67,8 @@ RUN         set -eux; \
             \
             # Temp fix if libssl1.1 needed
             case "${TARGETARCH}" in \
-                amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb;; \
-                arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_arm64.deb;; \
+                amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb;; \
+                arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_arm64.deb;; \
             esac; \
             apt-get install -y ./libssl1.1.deb; \
             rm libssl1.1.deb; \
@@ -89,6 +89,8 @@ RUN         set -eux; \
             rm -rf /var/lib/apt/lists/*
 
 ENV         LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
+
+STOPSIGNAL  SIGINT
 
 COPY        ./scripts/base/ampstart.sh /ampstart.sh
 RUN         chmod +x /ampstart.sh

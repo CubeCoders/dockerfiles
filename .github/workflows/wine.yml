@@ -80,11 +80,11 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - stable
-          - devel
-          - staging
-          - 10-stable
-          - 9-stable
+          - 'stable'
+          - 'devel'
+          - 'staging'
+          - '10-stable'
+          - '9-stable'
         
     steps:
       - uses: actions/checkout@v4

@@ -1,7 +1,7 @@
 # Python image for AMP containers using Python 3.13 from upstream
 # cubecoders/ampbase:python-3.13
 
-FROM        python:3.13-slim-bookworm AS py313
+FROM        python:3.13-slim-trixie AS py313
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 

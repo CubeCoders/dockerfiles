@@ -8,7 +8,7 @@ LABEL       org.opencontainers.image.licenses=MIT
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         TARGETARCH
-ARG         WINE_DIST="bookworm"
+ARG         WINE_DIST="trixie"
 ARG         WINE_BRANCH="stable"
 ARG         WINE_LINK="https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/"
 ARG         WINE_TARGET="10"
