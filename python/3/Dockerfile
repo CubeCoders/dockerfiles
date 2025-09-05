@@ -1,7 +1,7 @@
 # Python image for AMP containers including Python 3.10, 3.11 (default), 3.12 and 3.13 from upstream
 # cubecoders/ampbase:python-3
 
-FROM        python:3.10-slim-bookworm AS py310
+FROM        python:3.10-slim-trixie AS py310
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 
@@ -13,7 +13,7 @@ RUN         chmod +x /usr/local/bin/find-deps.sh
 RUN         set -eux; \
             /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
             
-FROM        python:3.11-slim-bookworm AS py311
+FROM        python:3.11-slim-trixie AS py311
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 
@@ -25,7 +25,7 @@ RUN         chmod +x /usr/local/bin/find-deps.sh
 RUN         set -eux; \
             /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
 
-FROM        python:3.12-slim-bookworm AS py312
+FROM        python:3.12-slim-trixie AS py312
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 
@@ -37,7 +37,7 @@ RUN         chmod +x /usr/local/bin/find-deps.sh
 RUN         set -eux; \
             /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
 
-FROM        python:3.13-slim-bookworm AS py313
+FROM        python:3.13-slim-trixie AS py313
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 

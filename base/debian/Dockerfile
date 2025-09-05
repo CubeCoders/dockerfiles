@@ -1,7 +1,7 @@
-# Base Debian 12 image for AMP containers
+# Base Debian 13 image for AMP containers
 # cubecoders/ampbase:debian
 
-FROM        debian:bookworm-slim
+FROM        debian:trixie-slim
 
 LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
@@ -19,7 +19,7 @@ RUN         set -eux; \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales gosu \
-                libssl3 libcurl4 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 \
+                libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2-compat libfontconfig1 libicu76 \
                 # Required for Proton
                 python3 \
                 # Required for Core Keeper
@@ -41,8 +41,8 @@ RUN         set -eux; \
                         # Required for steamcmd
                         libgcc-s1:i386 \
                         # Others
-                        libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4:i386 libcurl3-gnutls:i386 \
-                        libncurses6:i386 libncurses5:i386 libtinfo6:i386 libtinfo5:i386 libsdl2-2.0-0:i386 libssl3:i386; \
+                        libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4t64:i386 libcurl3t64-gnutls:i386 \
+                        libncurses6:i386 libtinfo6:i386 libsdl2-2.0-0:i386 libssl3t64:i386; \
                     ;; \
                 \
                 arm64) \
@@ -52,8 +52,8 @@ RUN         set -eux; \
                         # Required for steamcmd
                         libgcc-s1:armhf \
                         # Others
-                        libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4:armhf libcurl3-gnutls:armhf \
-                        libncurses6:armhf libncurses5:armhf libtinfo6:armhf libtinfo5:armhf libsdl2-2.0-0:armhf libssl3:armhf; \
+                        libstdc++6:armhf zlib1g:armhf libbz2-1.0:armhf libcurl4t64:armhf libcurl3t64-gnutls:armhf \
+                        libncurses6:armhf libtinfo6:armhf libsdl2-2.0-0:armhf libssl3t64:armhf; \
                     \
                     # Add box86/box64
                     install -d -m 0755 /etc/apt/keyrings; \
@@ -69,8 +69,8 @@ RUN         set -eux; \
             \
             # Temp fix if libssl1.1 needed
             case "${TARGETARCH}" in \
-                amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb;; \
-                arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_arm64.deb;; \
+                amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb;; \
+                arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_arm64.deb;; \
             esac; \
             apt-get install -y ./libssl1.1.deb; \
             rm libssl1.1.deb; \

@@ -23,7 +23,7 @@ jobs:
       matrix:
         base:
           - 'debian'
-          - 'debian-13'
+          - 'debian-12'
           - 'ubuntu'
 
     steps:
@@ -48,7 +48,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.base }}
           provenance: mode=max
           sbom: true
-      
+
       - uses: peter-evans/dockerhub-description@v4
         continue-on-error: true
         with:

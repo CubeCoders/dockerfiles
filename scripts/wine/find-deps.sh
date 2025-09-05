@@ -3,7 +3,7 @@
 set -eu
 
 BUILD="${1:-stable}"
-WINE_DIST="${WINE_DIST:-bookworm}"
+WINE_DIST="${WINE_DIST:-trixie}"
 
 # Helper: print Inst package names (sans wine metas), sorted unique
 _print_inst() {
