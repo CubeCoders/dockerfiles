@@ -14,17 +14,21 @@ permissions:
   packages: write
 
 jobs:
-  push:
+  build_and_push:
     if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' }}
     name: 'amp:${{ matrix.base }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        base:
-          - 'debian'
-          - 'debian-12'
-          - 'ubuntu'
+        include:
+          - base: 'debian'
+            allow_failure: false
+          - base: 'debian-12'
+            allow_failure: true
+          - base: 'ubuntu'
+            allow_failure: true
+    continue-on-error: ${{ matrix.allow_failure }}
 
     steps:
       - uses: actions/checkout@v4
@@ -49,8 +53,12 @@ jobs:
           provenance: mode=max
           sbom: true
 
+  update_description:
+    if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' && always() }}
+    needs: [build_and_push]
+    runs-on: ubuntu-latest
+    steps:
       - uses: peter-evans/dockerhub-description@v4
-        continue-on-error: true
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
