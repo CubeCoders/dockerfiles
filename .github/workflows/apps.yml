@@ -20,9 +20,7 @@ jobs:
   check_changes:
     runs-on: ubuntu-latest
     outputs:
-      postgresql_changed: ${{ steps.filter.outputs.postgresql_changed || 'false' }}
-      uptime_kuma_2_changed: ${{ steps.filter.outputs.uptime_kuma_2_changed || 'false' }}
-      base_changed: ${{ steps.filter.outputs.base_changed || 'false' }}
+      apps_json: ${{ steps.emit.outputs.apps_json }}
     steps:
       - if: ${{ github.event_name == 'push' }}
         uses: actions/checkout@v4
@@ -44,17 +42,41 @@ jobs:
               - 'base/**'
               - 'scripts/base/ampstart.sh'
 
+      - id: emit
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Default matrix when not a push: build all apps
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo 'apps_json=["postgresql","uptime-kuma-2"]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # On push: if base changed, build nothing (let base workflow handle rebuilds)
+          if [ "${{ steps.filter.outputs.base_changed || 'false' }}" = "true" ]; then
+            echo 'apps_json=[]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          apps=()
+          if [ "${{ steps.filter.outputs.postgresql_changed || 'false' }}" = "true" ]; then apps+=('"postgresql"'); fi
+          if [ "${{ steps.filter.outputs.uptime_kuma_2_changed || 'false' }}" = "true" ]; then apps+=('"uptime-kuma-2"'); fi
+
+          if [ "${#apps[@]}" -eq 0 ]; then
+            echo 'apps_json=[]' >> "$GITHUB_OUTPUT"
+          else
+            printf 'apps_json=[%s]\n' "$(IFS=,; echo "${apps[*]}")" >> "$GITHUB_OUTPUT"
+          fi
+
   build_and_push:
     needs: [check_changes]
-    if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' && ((github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'workflow_dispatch') || (github.event_name == 'push' && needs.check_changes.outputs.base_changed != 'true' && ((matrix.app == 'postgresql' && needs.check_changes.outputs.postgresql_changed  == 'true') || (matrix.app == 'uptime-kuma-2' && needs.check_changes.outputs.uptime_kuma_2_changed == 'true'))) }} 
+    if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') }}
     name: 'amp:apps-${{ matrix.app }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app:
-          - postgresql
-          - uptime-kuma-2
+        app: ${{ fromJSON(needs.check_changes.outputs.apps_json) }}
 
     steps:
       - uses: actions/checkout@v4
