@@ -25,7 +25,7 @@ RUN         set -eux; \
             install -d -m 0755 /etc/apt/keyrings; \
             wget -qO- https://pkg.cloudflare.com/cloudflare-main.gpg | gpg --dearmor -o /etc/apt/keyrings/cloudflare-main.gpg; \
             printf 'Types: deb\nURIs: https://pkg.cloudflare.com/cloudflared\nSuites: any\nComponents: main\nSigned-By: /etc/apt/keyrings/cloudflare-main.gpg\n' | tee /etc/apt/sources.list.d/cloudflared.sources >/dev/null; \
-            apt update; \
+            apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends -t stable \
                 cloudflared; \
             # Install remaining dependencies
