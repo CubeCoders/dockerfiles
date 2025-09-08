@@ -48,8 +48,8 @@ jobs:
           push: true
           tags: |
             cubecoders/ampbase:${{ matrix.base }}
-          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.base }}
-          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.base }}
+          cache-from: type=registry,ref=cubecoders/ampbase:${{ matrix.base }}
+          cache-to: type=inline
           provenance: mode=max
           sbom: true
 
