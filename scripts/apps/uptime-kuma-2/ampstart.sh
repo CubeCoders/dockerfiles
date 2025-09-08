@@ -86,6 +86,9 @@ if [[ -f "/AMP/customstart.sh" ]]; then
   ( set +e; /AMP/customstart.sh; rc=$?; ((rc==0)) || echo "[Warn] customstart.sh exited with $rc; continuing" )
 fi
 
+# Addition for Uptime Kuma 2 (for embedded MariaDB server)
+chown -R amp:amp /var/lib/mysql
+
 # Handoff
 echo "[Info] Starting AMP..."
 ARGS=$@
