@@ -1,4 +1,4 @@
-# Python image for AMP containers including Python 3.10, 3.11 (default), 3.12 and 3.13 from upstream
+# Python image for AMP containers including Python 3.10, 3.11, 3.12 and 3.13 (default) from upstream
 # cubecoders/ampbase:python-3
 
 FROM        python:3.10-slim-trixie AS py310
@@ -56,28 +56,28 @@ ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"
 ENV         AMP_ADDITIONAL_ENV_VARS="PIP_DISABLE_PIP_VERSION_CHECK"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
-ARG         PYTHON_DEFAULT="3.11"
-ARG         PYTHON_NON_DEFAULT="3.10 3.12 3.13"
+ARG         PYTHON_DEFAULT="3.13"
+ARG         PYTHON_NON_DEFAULT="3.10 3.11 3.12"
 
 # Drop in upstream Python 3.10
 COPY        --from=py310 /usr/local/ /usr/local/
 
 COPY        --from=py310 /tmp/3.10-run-deps.txt /tmp/3.10-run-deps.txt
 
+# Drop in upstream Python 3.11
+COPY        --from=py311 /usr/local/ /usr/local/
+
+COPY        --from=py311 /tmp/3.11-run-deps.txt /tmp/3.11-run-deps.txt
+
 # Drop in upstream Python 3.12
 COPY        --from=py312 /usr/local/ /usr/local/
 
 COPY        --from=py312 /tmp/3.12-run-deps.txt /tmp/3.12-run-deps.txt
 
-# Drop in upstream Python 3.13
+# Drop in upstream Python 3.13 (default last)
 COPY        --from=py313 /usr/local/ /usr/local/
 
 COPY        --from=py313 /tmp/3.13-run-deps.txt /tmp/3.13-run-deps.txt
-
-# Drop in upstream Python 3.11 (default last)
-COPY        --from=py311 /usr/local/ /usr/local/
-
-COPY        --from=py311 /tmp/3.11-run-deps.txt /tmp/3.11-run-deps.txt
 
 RUN         set -eux; \
             apt-get update; \
