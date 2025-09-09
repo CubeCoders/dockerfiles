@@ -20,19 +20,17 @@ ln -s /etc/machine-id /var/lib/dbus/machine-id
 
 echo "[Info] Setting up amp user and group..."
 
-if ! getent group "${AMPGROUPID}" >/dev/null; then
-  if getent group amp >/dev/null; then
-    groupmod -o -g "${AMPGROUPID}" amp
-  else
-    groupadd -r -g "${AMPGROUPID}" amp
-  fi
+if getent group amp >/dev/null; then
+  groupmod -o -g "${AMPGROUPID}" amp
+else
+  groupadd -r -o -g "${AMPGROUPID}" amp
 fi
 
 if id amp &>/dev/null; then
   usermod -o -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
 else
   useradd -m -d /home/amp -s /bin/bash -c "AMP Process User" \
-    -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
+    -o -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
 fi
 
 getent group tty >/dev/null && usermod -aG tty amp
@@ -72,7 +70,7 @@ if [[ -n "${AMP_MOUNTPOINTS:-}" ]]; then
   for dir in "${dirs[@]}"; do
     [[ -n "${dir}" ]] || continue
     if [[ -e "${dir}" ]]; then
-      chown -R amp:"${AMPGROUPID}" "${dir}" 2>/dev/null || echo "[Warn] chown failed for ${dir}; continuing"
+      chown -R amp:amp "${dir}" 2>/dev/null || echo "[Warn] chown failed for ${dir}; continuing"
     else
       echo "[Warn] Mountpoint not found: ${dir}; skipping"
     fi
