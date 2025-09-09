@@ -1,12 +1,12 @@
 # AMP Docker Images
 
-This repository contains images for use with AMP by CubeCoders. These images are updated at least weekly.
+This repository contains Docker images for use with AMP by CubeCoders. These images are updated at least weekly.
 
 These images are not designed to be run directly. Instead, they should be run via the AMP Instance Manager.
 
 Currently maintained image tags:
 
-- [debian](https://github.com/CubeCoders/dockerfiles/tree/master/base/debian): the primary AMP base image, used for most AMP instances. Currently based on Debian 13. Usually updated to the current stable Debian release after the first point release
+- [debian](https://github.com/CubeCoders/dockerfiles/tree/master/base/debian): the primary AMP base image, used for most AMP instances that are run in Docker. Currently based on Debian 13. Usually updated to the current stable Debian release after the first point release
 - [debian-12](https://github.com/CubeCoders/dockerfiles/tree/master/base/debian-12): an alternate AMP base image, based on Debian 12. This is available for applications that need oldstable Debian
 - [ubuntu](https://github.com/CubeCoders/dockerfiles/tree/master/base/ubuntu): an alternate AMP base image, currently based on Ubuntu 24.04. Usually updated to the current Ubuntu LTS release after the first point release
 - [java-lts](https://github.com/CubeCoders/dockerfiles/tree/master/java/lts): an image based on the `debian` image, incorporating Adoptium Eclipse Temurin Java 8, 11, 17 and 21 LTS builds from https://adoptium.net
