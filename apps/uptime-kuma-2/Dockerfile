@@ -1,4 +1,4 @@
-# Uptime Kuma 2 image for AMP containers
+# Uptime Kuma 2 dependencies image for AMP containers
 # Based on https://github.com/louislam/uptime-kuma/blob/223cde831f09a49a317bc4e5926cc8a38a6fa3f2/docker/debian-base.dockerfile
 # cubecoders/ampbase:uptime-kuma-2
 

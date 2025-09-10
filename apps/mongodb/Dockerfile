@@ -1,5 +1,5 @@
-# PostgreSQL dependencies image for AMP containers
-# cubecoders/ampbase:postgresql
+# MongoDB dependencies image for AMP containers
+# cubecoders/ampbase:mongodb
 
 FROM        cubecoders/ampbase:debian
 
@@ -11,6 +11,6 @@ ENV         DEBIAN_FRONTEND="noninteractive"
 RUN         set -eux; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
-                make build-essential flex bison perl libreadline-dev libicu-dev; \
+                libcurl4t64 libgssapi-krb5-2 libldap-common libwrap0 libsasl2-2 libsasl2-modules libsasl2-modules-gssapi-mit openssl liblzma5; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
