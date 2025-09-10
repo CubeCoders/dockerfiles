@@ -11,6 +11,8 @@ ENV         DEBIAN_FRONTEND="noninteractive"
 RUN         set -eux; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
-                make build-essential flex bison perl libreadline-dev libicu-dev; \
+                build-essential make tar gzip bzip2 xz-utils \
+                flex bison perl pkg-config libreadline-dev zlib1g-dev libicu-dev \
+                libssl-dev gettext; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
