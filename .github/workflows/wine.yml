@@ -61,6 +61,8 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - run: docker buildx prune -af
+
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -69,7 +71,8 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:wine-common
-          cache-from: type=registry,ref=cubecoders/ampbase:wine-common
+          #cache-from: type=registry,ref=cubecoders/ampbase:wine-common
+          no-cache: true
           cache-to: type=inline
           provenance: mode=max
           sbom: true
@@ -98,6 +101,8 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - run: docker buildx prune -af
+
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -106,9 +111,10 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:wine-${{ matrix.version }}
-          cache-from: |
-            type=registry,ref=cubecoders/ampbase:wine-common
-            type=registry,ref=cubecoders/ampbase:wine-${{ matrix.version }}
+          #cache-from: |
+          #type=registry,ref=cubecoders/ampbase:wine-common
+          #type=registry,ref=cubecoders/ampbase:wine-${{ matrix.version }}
+          no-cache: true
           cache-to: type=inline
           provenance: mode=max
           sbom: true

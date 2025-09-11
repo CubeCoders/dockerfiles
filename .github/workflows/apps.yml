@@ -91,6 +91,8 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - run: docker buildx prune -af
+
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -99,7 +101,8 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:${{ matrix.app }}
-          cache-from: type=registry,ref=cubecoders/ampbase:${{ matrix.app }}
+          #cache-from: type=registry,ref=cubecoders/ampbase:${{ matrix.app }}
+          no-cache: true
           cache-to: type=inline
           provenance: mode=max
           sbom: true
