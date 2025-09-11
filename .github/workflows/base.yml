@@ -50,8 +50,7 @@ jobs:
           push: true
           tags: |
             cubecoders/ampbase:${{ matrix.base }}
-          #cache-from: type=registry,ref=cubecoders/ampbase:${{ matrix.base }}
-          no-cache: true
+          cache-from: type=registry,ref=cubecoders/ampbase:${{ matrix.base }}
           cache-to: type=inline
           provenance: mode=max
           sbom: true
