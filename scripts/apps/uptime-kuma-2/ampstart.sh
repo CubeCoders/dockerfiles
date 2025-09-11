@@ -27,10 +27,10 @@ else
 fi
 
 if id amp &>/dev/null; then
-  usermod -o -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
+  usermod -o -u "${AMPUSERID}" -g amp amp
 else
   useradd -m -d /home/amp -s /bin/bash -c "AMP Process User" \
-    -o -u "${AMPUSERID}" -g "${AMPGROUPID}" amp
+    -o -u "${AMPUSERID}" -g amp amp
 fi
 
 getent group tty >/dev/null && usermod -aG tty amp

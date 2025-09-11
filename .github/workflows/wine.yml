@@ -61,6 +61,8 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - run: docker buildx prune -af
+
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -97,6 +99,8 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - run: docker buildx prune -af
 
       - uses: docker/build-push-action@v6
         with:
