@@ -2,7 +2,7 @@
 
 set -eu
 
-IN="${1:?usage: $0 combined.txt}"
+IN="${1:?usage: $0 list.txt}"
 NATIVE="arm64"
 FROM_COMPAT="i386"
 TO_COMPAT="armhf"
