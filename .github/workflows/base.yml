@@ -16,7 +16,7 @@ permissions:
 jobs:
   build_and_push:
     if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' }}
-    name: 'amp:${{ matrix.base }}'
+    name: 'ampbase:${{ matrix.base }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

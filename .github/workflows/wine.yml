@@ -43,7 +43,7 @@ jobs:
   build_wine_common:
     needs: [check_changes]
     if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' && ( (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && needs.check_changes.outputs.wine_changed == 'true' && needs.check_changes.outputs.base_changed != 'true') || github.event_name == 'workflow_dispatch' ) }}
-    name: 'amp:wine-common'
+    name: 'ampbase:wine-common'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -78,7 +78,7 @@ jobs:
 
   build_versions:
     needs: [build_wine_common]
-    name: 'amp:wine-${{ matrix.version }}'
+    name: 'ampbase:wine-${{ matrix.version }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
