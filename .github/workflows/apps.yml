@@ -38,6 +38,8 @@ jobs:
             uptime_kuma_2_changed:
               - 'apps/uptime-kuma-2/**'
               - 'scripts/apps/uptime-kuma-2/**'
+            sinusbot_changed:
+              - 'apps/sinusbot/**'
             base_changed:
               - 'base/**'
               - 'scripts/base/ampstart.sh'
@@ -48,7 +50,7 @@ jobs:
           set -euo pipefail
           # Default matrix when not a push: build all apps
           if [ "${{ github.event_name }}" != "push" ]; then
-            echo 'apps_json=["postgresql","uptime-kuma-2"]' >> "$GITHUB_OUTPUT"
+            echo 'apps_json=["postgresql","uptime-kuma-2","sinusbot"]' >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -61,6 +63,7 @@ jobs:
           apps=()
           if [ "${{ steps.filter.outputs.postgresql_changed || 'false' }}" = "true" ]; then apps+=('"postgresql"'); fi
           if [ "${{ steps.filter.outputs.uptime_kuma_2_changed || 'false' }}" = "true" ]; then apps+=('"uptime-kuma-2"'); fi
+          if [ "${{ steps.filter.outputs.sinusbot_changed || 'false' }}" = "true" ]; then apps+=('"sinusbot"'); fi
 
           if [ "${#apps[@]}" -eq 0 ]; then
             echo 'apps_json=[]' >> "$GITHUB_OUTPUT"
