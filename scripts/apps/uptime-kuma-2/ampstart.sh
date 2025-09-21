@@ -6,13 +6,16 @@ echo "[Info] AMPStart for Docker"
 ARCH=$(uname -m)
 
 # Context check
-[ -z "${AMPUSERID}" ] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
+[[ -z "${AMPUSERID}" ]] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
 
 # Create /etc/machine-id (addresses Proton/dbus issues)
 mkdir -p /var/lib/dbus
 rm -f /etc/machine-id /var/lib/dbus/machine-id
 dbus-uuidgen --ensure=/etc/machine-id
 ln -s /etc/machine-id /var/lib/dbus/machine-id
+
+# Create /tmp/.X11-unix (for Xvfb etc)
+install -d -o root -g root -m 1777 /tmp/.X11-unix
 
 # Set up amp user and group
 : "${AMPUSERID:?AMPUSERID not set}"
