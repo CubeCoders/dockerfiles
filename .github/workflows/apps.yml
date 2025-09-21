@@ -104,8 +104,8 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:${{ matrix.app }}
-          cache-from: type=registry,ref=cubecoders/ampbase:${{ matrix.app }}
-          cache-to: type=inline
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.app }}
           provenance: mode=max
           sbom: true
 

@@ -72,8 +72,8 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:mono-${{ matrix.mono }}
-          cache-from: type=registry,ref=cubecoders/ampbase:mono-${{ matrix.mono }}
-          cache-to: type=inline
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.mono }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.mono }}
           provenance: mode=max
           sbom: true
 

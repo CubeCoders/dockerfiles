@@ -71,8 +71,8 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:wine-common
-          cache-from: type=registry,ref=cubecoders/ampbase:wine-common
-          cache-to: type=inline
+          cache-from: type=gha,scope=${{ github.workflow }}-common
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-common
           provenance: mode=max
           sbom: true
 
@@ -111,9 +111,9 @@ jobs:
           pull: true
           tags: cubecoders/ampbase:wine-${{ matrix.version }}
           cache-from: |
-            type=registry,ref=cubecoders/ampbase:wine-common
-            type=registry,ref=cubecoders/ampbase:wine-${{ matrix.version }}
-          cache-to: type=inline
+            type=gha,scope=${{ github.workflow }}-common
+            type=gha,scope=${{ github.workflow }}-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.version }}
           provenance: mode=max
           sbom: true
 
