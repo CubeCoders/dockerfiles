@@ -87,6 +87,10 @@ if [[ -f "/AMP/customstart.sh" ]]; then
   ( set +e; /AMP/customstart.sh; rc=$?; ((rc==0)) || echo "[Warn] customstart.sh exited with $rc; continuing" )
 fi
 
+# Set XDG_RUNTIME_DIR (stop Wine/Proton whining)
+XDG_RUNTIME_DIR="/run/user/${AMPUSERID}"
+install -d -m 0700 -o amp -g amp "${XDG_RUNTIME_DIR}"
+
 # Handoff
 echo "[Info] Starting AMP..."
 ARGS=$@
@@ -96,6 +100,7 @@ keep_env=(
   LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
   PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
   MAIL=/var/mail/amp
+  XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}"
 )
 # Always keep these AMP_ env vars if set
 for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
