@@ -91,7 +91,7 @@ keep_env=(
   HOME=/home/amp
   USER=amp LOGNAME=amp SHELL=/bin/bash
   LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
-  PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
   MAIL=/var/mail/amp
 )
 # Always keep these AMP_ env vars if set
