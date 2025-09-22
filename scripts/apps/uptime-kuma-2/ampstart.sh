@@ -6,13 +6,16 @@ echo "[Info] AMPStart for Docker"
 ARCH=$(uname -m)
 
 # Context check
-[ -z "${AMPUSERID}" ] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
+[[ -z "${AMPUSERID}" ]] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
 
 # Create /etc/machine-id (addresses Proton/dbus issues)
 mkdir -p /var/lib/dbus
 rm -f /etc/machine-id /var/lib/dbus/machine-id
 dbus-uuidgen --ensure=/etc/machine-id
 ln -s /etc/machine-id /var/lib/dbus/machine-id
+
+# Create /tmp/.X11-unix (for Xvfb etc)
+install -d -o root -g root -m 1777 /tmp/.X11-unix
 
 # Set up amp user and group
 : "${AMPUSERID:?AMPUSERID not set}"
@@ -87,6 +90,10 @@ fi
 # Addition for Uptime Kuma 2 (for embedded MariaDB server)
 chown -R amp:amp /var/lib/mysql
 
+# Set XDG_RUNTIME_DIR (stop Wine/Proton whining)
+XDG_RUNTIME_DIR="/run/user/${AMPUSERID}"
+install -d -m 0700 -o amp -g amp "${XDG_RUNTIME_DIR}"
+
 # Handoff
 echo "[Info] Starting AMP..."
 ARGS=$@
@@ -94,8 +101,9 @@ keep_env=(
   HOME=/home/amp
   USER=amp LOGNAME=amp SHELL=/bin/bash
   LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
-  PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
   MAIL=/var/mail/amp
+  XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}"
 )
 # Always keep these AMP_ env vars if set
 for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
