@@ -100,7 +100,7 @@ jobs:
         with:
           context: .
           file: ./apps/${{ matrix.app }}/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: ${{ matrix.app == 'sinusbot' && 'linux/amd64' || 'linux/amd64,linux/arm64/v8' }}
           push: true
           pull: true
           tags: cubecoders/ampbase:${{ matrix.app }}
