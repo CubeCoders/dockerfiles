@@ -55,20 +55,6 @@ jobs:
           provenance: mode=max
           sbom: true
 
-  update_description:
-    if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' && always() }}
-    needs: [build_and_push]
-    runs-on: ubuntu-latest
-    continue-on-error: true
-
-    steps:
-      - uses: peter-evans/dockerhub-description@v4
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: cubecoders/ampbase
-          short-description: "Images for AMP's Docker instances."
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
