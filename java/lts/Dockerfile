@@ -18,6 +18,6 @@ RUN         set -eux; \
             printf 'Types: deb\nURIs: https://packages.adoptium.net/artifactory/deb\nSuites: trixie\nComponents: main\nSigned-By: /etc/apt/keyrings/adoptium.gpg\n' | tee /etc/apt/sources.list.d/adoptium.sources >/dev/null; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
-                temurin-8-jdk temurin-11-jdk temurin-17-jdk temurin-21-jdk; \
+                temurin-8-jdk temurin-11-jdk temurin-17-jdk temurin-21-jdk temurin-25-jdk; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
