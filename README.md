@@ -10,11 +10,12 @@ Currently maintained image tags:
 - [debian-12](https://github.com/CubeCoders/dockerfiles/tree/master/base/debian-12): an alternate AMP base image, based on Debian 12. This is available for applications that need oldstable Debian
 - [ubuntu](https://github.com/CubeCoders/dockerfiles/tree/master/base/ubuntu): an alternate AMP base image, currently based on Ubuntu 24.04. Usually updated to the current Ubuntu LTS release after the first point release
 - [java-lts](https://github.com/CubeCoders/dockerfiles/tree/master/java/lts): an image based on the `debian` image, incorporating Adoptium Eclipse Temurin Java 8, 11, 17, 21 and 25 LTS builds from https://adoptium.net
-- [python-3](https://github.com/CubeCoders/dockerfiles/tree/master/python/3): an image based on the `debian` image, incorporating official builds for Python 3.10, 3.11 3.12 and 3.13 (default)
+- [python-3](https://github.com/CubeCoders/dockerfiles/tree/master/python/3): an image based on the `debian` image, incorporating official builds for Python 3.10, 3.11 3.12, 3.13 (default) and 3.14
 - [python-3.10](https://github.com/CubeCoders/dockerfiles/tree/master/python/3.10): an image based on the `debian` image, incorporating the official build for Python 3.10
 - [python-3.11](https://github.com/CubeCoders/dockerfiles/tree/master/python/3.11): an image based on the `debian` image, incorporating the official build for Python 3.11
 - [python-3.12](https://github.com/CubeCoders/dockerfiles/tree/master/python/3.12): an image based on the `debian` image, incorporating the official build for Python 3.12
 - [python-3.13](https://github.com/CubeCoders/dockerfiles/tree/master/python/3.13): an image based on the `debian` image, incorporating the official build for Python 3.13
+- [python-3.14](https://github.com/CubeCoders/dockerfiles/tree/master/python/3.14): an image based on the `debian` image, incorporating the official build for Python 3.14
 - [mono-latest](https://github.com/CubeCoders/dockerfiles/tree/master/mono/latest): an image based on the `debian` image, incorporating the latest official build for Mono from https://mono-project.com
 - [wine-stable](https://github.com/CubeCoders/dockerfiles/tree/master/wine/stable): an image based on the `debian` image, incorporating the latest Wine stable build from https://winehq.org
 - [wine-devel](https://github.com/CubeCoders/dockerfiles/tree/master/wine/devel): an image based on the `debian` image, incorporating the latest Wine devel build from https://winehq.org
