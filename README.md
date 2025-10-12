@@ -26,4 +26,4 @@ Currently maintained image tags:
 - [uptime-kuma-2](https://github.com/CubeCoders/dockerfiles/tree/master/apps/uptime-kuma-2): an image based on the `debian` image, incorporating specific dependencies and setup required for Uptime Kuma 2
 - [sinusbot](https://github.com/CubeCoders/dockerfiles/tree/master/apps/sinusbot): an image based on the `debian` image, incorporating specific dependencies and setup required for SinusBot
 
-All images are built for `linux/amd64` and `linux/arm64`. The `linux/arm64` builds include [box86](https://github.com/Pi-Apps-Coders/box86-debs) and [box64](https://github.com/Pi-Apps-Coders/box64-debs).
+All images (other than the `sinusbot` image) are built for `linux/amd64` and `linux/arm64`. The `linux/arm64` builds include [box86](https://github.com/Pi-Apps-Coders/box86-debs) and [box64](https://github.com/Pi-Apps-Coders/box64-debs).
