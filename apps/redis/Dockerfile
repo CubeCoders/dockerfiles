@@ -7,6 +7,7 @@ LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         CARGO_HOME="/usr/local/cargo"
 ENV         RUSTUP_HOME="/usr/local/rustup"
+ENV         AMP_ADDITIONAL_ENV_VARS="CARGO_HOME RUSTUP_HOME"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 # Install dependencies as per official Redis build instructions, and Rust for building modules
