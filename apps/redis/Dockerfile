@@ -5,6 +5,8 @@ FROM        cubecoders/ampbase:ubuntu
 
 LABEL       org.opencontainers.image.licenses=MIT
 
+ENV         CARGO_HOME="/usr/local/cargo"
+ENV         RUSTUP_HOME="/usr/local/rustup"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 # Install dependencies as per official Redis build instructions, and Rust for building modules
