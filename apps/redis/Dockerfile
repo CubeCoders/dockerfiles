@@ -7,9 +7,6 @@ LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         DEBIAN_FRONTEND="noninteractive"
 
-ARG         PATH="/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-ENV         AMP_ADDITIONAL_ENV_VARS="PATH"
-
 # Install dependencies as per official Redis build instructions, and Rust for building modules
 RUN         set -eux; \
             apt-get update; \ 
@@ -19,3 +16,8 @@ RUN         set -eux; \
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
+
+COPY        ./scripts/apps/redis/ampstart.sh /ampstart.sh
+RUN         chmod +x /ampstart.sh
+ENTRYPOINT  ["/usr/bin/tini", "-g", "--", "/ampstart.sh"]
+CMD         []
