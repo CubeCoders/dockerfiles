@@ -91,17 +91,23 @@ fi
 XDG_RUNTIME_DIR="/run/user/${AMPUSERID}"
 install -d -m 0700 -o amp -g amp "${XDG_RUNTIME_DIR}"
 
+# Addition for Redis (for Rust)
+# PATH is also modified
+CARGO_HOME="/home/amp/.cargo"
+install -d -m 0755 -o amp -g amp "${CARGO_HOME}"
+
 # Handoff
 echo "[Info] Starting AMP..."
 ARGS=$@
-# Use specific PATH for Redis to include Rust cargo bin
+# Use specific PATH for Redis to include Rust toolchain binaries, and add CARGO_HOME
 keep_env=(
   HOME=/home/amp
   USER=amp LOGNAME=amp SHELL=/bin/bash
   LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
-  PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+  PATH=/opt/rust-bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
   MAIL=/var/mail/amp
   XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}"
+  CARGO_HOME="${CARGO_HOME}"
 )
 # Always keep these AMP_ env vars if set
 for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
