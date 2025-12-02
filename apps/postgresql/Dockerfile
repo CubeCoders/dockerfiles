@@ -12,7 +12,7 @@ RUN         set -eux; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                 build-essential make tar gzip bzip2 xz-utils \
-                flex bison perl pkg-config libreadline-dev zlib1g-dev libicu-dev \
+                flex bison perl pkgconf libreadline-dev zlib1g-dev libicu-dev \
                 libssl-dev gettext; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
