@@ -16,8 +16,8 @@ ARG         WINE_LINK="https://dl.winehq.org/wine-builds/debian/pool/main/w/wine
 RUN         set -eux; \
             WINE_BUILD="$( \
                 curl -fsSL "${WINE_LINK}" \
-                | grep -oE "wine-${WINE_BRANCH}-amd64_[0-9][0-9.]*~${WINE_DIST}(-[0-9]+)?_amd64\.deb" \
-                | sed -E "s/^wine-${WINE_BRANCH}-amd64_([0-9.]+~${WINE_DIST}(-[0-9]+)?)_amd64\.deb$/\1/" \
+                | grep -oE "wine-${WINE_BRANCH}-amd64_[0-9][0-9.]*(-rc[0-9]+)?~${WINE_DIST}(-[0-9]+)?_amd64\.deb" \
+                | sed -E "s/^wine-${WINE_BRANCH}-amd64_([0-9][0-9.]*(-rc[0-9]+)?~${WINE_DIST}(-[0-9]+)?)_amd64\.deb$/\1/" \
                 | sort -V | tail -1 \
                 )"; \
             \
