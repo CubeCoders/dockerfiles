@@ -64,7 +64,8 @@ jobs:
 
       - run: docker buildx prune -af
 
-      - uses: docker/build-push-action@v6
+      - if: ${{ matrix.java != 'lts' }}
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./java/${{ matrix.java }}/Dockerfile
@@ -72,6 +73,22 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:java-${{ matrix.java }}
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.java }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.java }}
+          provenance: mode=max
+          sbom: true
+
+      - if: ${{ matrix.java == 'lts' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./java/${{ matrix.java }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: |
+            cubecoders/ampbase:java-${{ matrix.java }}
+            cubecoders/ampbase:java
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.java }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.java }}
           provenance: mode=max
