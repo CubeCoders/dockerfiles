@@ -71,7 +71,8 @@ jobs:
 
       - run: docker buildx prune -af
 
-      - uses: docker/build-push-action@v6
+      - if: ${{ matrix.python != '3' }}
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./python/${{ matrix.python }}/Dockerfile
@@ -79,6 +80,22 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:python-${{ matrix.python }}
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.python }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.python }}
+          provenance: mode=max
+          sbom: true
+
+      - if: ${{ matrix.python == '3' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./python/${{ matrix.python }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: |
+            cubecoders/ampbase:python-${{ matrix.python }}
+            cubecoders/ampbase:python3
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.python }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.python }}
           provenance: mode=max
