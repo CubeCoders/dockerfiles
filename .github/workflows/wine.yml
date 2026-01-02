@@ -102,7 +102,8 @@ jobs:
 
       - run: docker buildx prune -af
 
-      - uses: docker/build-push-action@v6
+      - if: ${{ matrix.version != 'stable' }}
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./wine/${{ matrix.version }}/Dockerfile
@@ -110,6 +111,24 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:wine-${{ matrix.version }}
+          cache-from: |
+            type=gha,scope=${{ github.workflow }}-common
+            type=gha,scope=${{ github.workflow }}-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.version }}
+          provenance: mode=max
+          sbom: true
+
+      - if: ${{ matrix.version == 'stable' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./wine/${{ matrix.version }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: |
+            cubecoders/ampbase:wine-${{ matrix.version }}
+            cubecoders/ampbase:wine
           cache-from: |
             type=gha,scope=${{ github.workflow }}-common
             type=gha,scope=${{ github.workflow }}-${{ matrix.version }}

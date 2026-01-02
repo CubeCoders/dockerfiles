@@ -64,7 +64,8 @@ jobs:
 
       - run: docker buildx prune -af
 
-      - uses: docker/build-push-action@v6
+      - if: ${{ matrix.mono != 'latest' }}
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./mono/${{ matrix.mono }}/Dockerfile
@@ -72,6 +73,22 @@ jobs:
           push: true
           pull: true
           tags: cubecoders/ampbase:mono-${{ matrix.mono }}
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.mono }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.mono }}
+          provenance: mode=max
+          sbom: true
+
+      - if: ${{ matrix.mono == 'latest' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./mono/${{ matrix.mono }}/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          pull: true
+          tags: |
+            cubecoders/ampbase:mono-${{ matrix.mono }}
+            cubecoders/ampbase:mono
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.mono }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.mono }}
           provenance: mode=max
