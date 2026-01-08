@@ -48,6 +48,7 @@ jobs:
       matrix:
         java:
           - 'lts'
+          - '25'
 
     steps:
       - uses: actions/checkout@v4
