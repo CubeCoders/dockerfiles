@@ -8,11 +8,10 @@ ARCH=$(uname -m)
 # Context check
 [[ -z "${AMPUSERID}" ]] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
 
-# Create static/etc/machine-id based on AMP instance UUID (addresses Proton/dbus issues)
+# Create /etc/machine-id (addresses Proton/dbus issues)
 mkdir -p /var/lib/dbus
 rm -f /etc/machine-id /var/lib/dbus/machine-id
-MachineID=$(grep '^AMP.InstanceID=' /AMP/AMPConfig.conf | sed 's/.*=//' | tr -d '-')
-echo "$MachineID" > /etc/machine-id
+dbus-uuidgen --ensure=/etc/machine-id
 ln -s /etc/machine-id /var/lib/dbus/machine-id
 
 # Create /tmp/.X11-unix (for Xvfb etc)
