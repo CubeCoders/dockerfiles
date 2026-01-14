@@ -8,11 +8,16 @@ ARCH=$(uname -m)
 # Context check
 [[ -z "${AMPUSERID}" ]] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
 
-# Create /etc/machine-id (addresses Proton/dbus issues)
+# Create /etc/machine-id using the instance UUID if AMP_INSTANCE_ID exists (addresses Proton/dbus issues)
 mkdir -p /var/lib/dbus
 rm -f /etc/machine-id /var/lib/dbus/machine-id
-dbus-uuidgen --ensure=/etc/machine-id
-ln -s /etc/machine-id /var/lib/dbus/machine-id
+if [[ -n "${AMP_INSTANCE_ID:-}" ]]; then
+  printf '%s\n' "${AMP_INSTANCE_ID//-/}" > /etc/machine-id
+else
+  dbus-uuidgen --ensure=/etc/machine-id
+fi
+ln -sf /etc/machine-id /var/lib/dbus/machine-id
+chmod 0444 /etc/machine-id
 
 # Create /tmp/.X11-unix (for Xvfb etc)
 install -d -o root -g root -m 1777 /tmp/.X11-unix
@@ -103,7 +108,7 @@ keep_env=(
   XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}"
 )
 # Always keep these AMP_ env vars if set
-for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS; do
+for v in AMPHOSTPLATFORM AMP_CONTAINER AMP_CONTAINER_HOST_NETWORK AMPMEMORYLIMIT AMPSWAPLIMIT AMPCONTAINERCPUS AMP_INSTANCE_ID; do
   if [[ -n "${!v-}" ]]; then keep_env+=("$v=${!v}"); fi
 done
 # Extra passthrough of env vars listed in AMP_ADDITIONAL_ENV_VARS in the Dockerfile
