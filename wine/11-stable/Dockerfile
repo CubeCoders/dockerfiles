@@ -1,0 +1,73 @@
+# Wine image for AMP containers based on Wine 11 stable
+# cubecoders/ampbase:wine-11-stable
+
+FROM        cubecoders/ampbase:wine-common
+
+LABEL       org.opencontainers.image.licenses=MIT
+
+ENV         DEBIAN_FRONTEND="noninteractive"
+
+ARG         TARGETARCH
+ARG         WINE_DIST="trixie"
+ARG         WINE_BRANCH="stable"
+ARG         WINE_LINK="https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/"
+ARG         WINE_TARGET="11"
+
+# Install additional required packages and Wine 11 stable
+RUN         set -eux; \
+            WINE_BUILD="$( \
+                curl -fsSL "${WINE_LINK}" \
+                | grep -oE "wine-${WINE_BRANCH}-amd64_[0-9][0-9.]*~${WINE_DIST}(-[0-9]+)?_amd64\.deb" \
+                | sed -E "s/^wine-${WINE_BRANCH}-amd64_([0-9.]+~${WINE_DIST}(-[0-9]+)?)_amd64\.deb$/\1/" \
+                | grep -E "^${WINE_TARGET}(\.|$)" \
+                | sort -V | tail -1 \
+            )"; \
+            \
+            case "${TARGETARCH}" in \
+            \
+                amd64) \
+                    install -d -m 0755 /etc/apt/keyrings; \
+                    wget -qO- https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -; \
+                    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/${WINE_DIST}/winehq-${WINE_DIST}.sources; \
+                    \
+                    apt-get update; \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y --install-recommends \
+                        wine-${WINE_BRANCH}-i386=${WINE_BUILD} \
+                        wine-${WINE_BRANCH}-amd64=${WINE_BUILD} \
+                        wine-${WINE_BRANCH}=${WINE_BUILD} \
+                        winehq-${WINE_BRANCH}=${WINE_BUILD}; \
+                    ;; \
+                \
+                arm64) \
+                    apt-get update; \
+                    xargs -ra /tmp/wine-files/wine-${WINE_TARGET}-${WINE_BRANCH}-deps-arm64.txt \
+                        apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
+                    \
+                    for n in \
+                        "wine-${WINE_BRANCH}-amd64_${WINE_BUILD}_amd64.deb" \
+                        "wine-${WINE_BRANCH}_${WINE_BUILD}_amd64.deb" \
+                        "winehq-${WINE_BRANCH}_${WINE_BUILD}_amd64.deb" \
+                        "wine-${WINE_BRANCH}-i386_${WINE_BUILD}_i386.deb" ; do \
+                            wget -q -P /tmp/wine-files "${WINE_LINK}${n}"; \
+                        done; \
+                    for d in /tmp/wine-files/*.deb; do dpkg-deb -x "$d" /wine-installer; done; \
+                    mv /wine-installer/opt/wine* /opt/wine-${WINE_BRANCH}; \
+                    rm -rf /wine-installer; \
+                    \
+                    if [ -f /opt/wine-${WINE_BRANCH}/bin/wine64 ]; then \
+                        ln -sf /opt/wine-${WINE_BRANCH}/bin/wine64 /usr/bin/wine; \
+                        ln -sf /opt/wine-${WINE_BRANCH}/bin/wine /usr/bin/wine32; \
+                    else \
+                        ln -sf /opt/wine-${WINE_BRANCH}/bin/wine /usr/bin/wine; \
+                    fi; \
+                    ln -sf /opt/wine-${WINE_BRANCH}/bin/wineboot /usr/bin/wineboot; \
+                    ln -sf /opt/wine-${WINE_BRANCH}/bin/winecfg /usr/bin/winecfg; \
+                    ln -sf /opt/wine-${WINE_BRANCH}/bin/wineserver /usr/bin/wineserver; \
+                    chmod +x /usr/bin/wine /usr/bin/wineboot /usr/bin/winecfg /usr/bin/wineserver; \
+                    if [ -f /usr/bin/wine32 ]; then chmod +x /usr/bin/wine32; fi; \
+                    ;; \
+            esac; \
+            \
+            rm -rf /tmp/wine-files; \
+            apt-get clean; \
+            rm -rf /var/lib/apt/lists/*

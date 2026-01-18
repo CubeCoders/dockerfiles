@@ -87,6 +87,7 @@ jobs:
           - 'stable'
           - 'devel'
           - 'staging'
+          - '11-stable'
           - '10-stable'
           - '9-stable'
 
