@@ -49,22 +49,14 @@ RUN         set -eux; \
                         "winehq-${WINE_BRANCH}_${WINE_BUILD}_amd64.deb" \
                         "wine-${WINE_BRANCH}-i386_${WINE_BUILD}_i386.deb" ; do \
                             wget -q -P /tmp/wine-files "${WINE_LINK}${n}"; \
-                        done; \
+                    done; \
                     for d in /tmp/wine-files/*.deb; do dpkg-deb -x "$d" /wine-installer; done; \
                     mv /wine-installer/opt/wine* /opt/wine-${WINE_BRANCH}; \
                     rm -rf /wine-installer; \
                     \
-                    if [ -f /opt/wine-${WINE_BRANCH}/bin/wine64 ]; then \
-                        ln -sf /opt/wine-${WINE_BRANCH}/bin/wine64 /usr/bin/wine; \
-                        ln -sf /opt/wine-${WINE_BRANCH}/bin/wine /usr/bin/wine32; \
-                    else \
-                        ln -sf /opt/wine-${WINE_BRANCH}/bin/wine /usr/bin/wine; \
-                    fi; \
-                    ln -sf /opt/wine-${WINE_BRANCH}/bin/wineboot /usr/bin/wineboot; \
-                    ln -sf /opt/wine-${WINE_BRANCH}/bin/winecfg /usr/bin/winecfg; \
-                    ln -sf /opt/wine-${WINE_BRANCH}/bin/wineserver /usr/bin/wineserver; \
-                    chmod +x /usr/bin/wine /usr/bin/wineboot /usr/bin/winecfg /usr/bin/wineserver; \
-                    if [ -f /usr/bin/wine32 ]; then chmod +x /usr/bin/wine32; fi; \
+                    for file in /opt/wine-"${WINE_BRANCH}"/bin/*; do \
+                        [[ -x "${file}" ]] && ln -sf "${file}" /usr/bin/"$(basename "${file}")"; \
+                    done; \
                     ;; \
             esac; \
             \
