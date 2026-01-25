@@ -50,7 +50,7 @@ RUN         set -eux; \
                     rm -rf /wine-installer; \
                     \
                     for file in /opt/wine-"${WINE_BRANCH}"/bin/*; do \
-                        [[ -x "${file}" ]] && ln -sf "${file}" /usr/bin/"$(basename "${file}")"; \
+                        [ -x "${file}" ] && ln -sf "${file}" /usr/bin/"$(basename "${file}")"; \
                     done; \
                     ;; \
             esac; \
