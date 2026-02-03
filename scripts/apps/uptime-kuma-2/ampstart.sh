@@ -45,7 +45,7 @@ getent group tty >/dev/null && usermod -aG tty amp
 
 install -d -m 0755 /home/amp
 touch /home/amp/.gitconfig
-chown -R amp:amp /home/amp
+chown amp:amp /home/amp /home/amp/.gitconfig
 
 # Make AMP binary executable
 AMP_BIN="/AMP/AMP_Linux_${ARCH}"
@@ -69,20 +69,6 @@ if ((${#REQUIRED_DEPS[@]})); then
     apt-get clean >/dev/null 2>&1 || true
     rm -rf /var/lib/apt/lists/* || true
   )
-fi
-
-# Set custom mountpoint permissions if needed (non-fatal)
-if [[ -n "${AMP_MOUNTPOINTS:-}" ]]; then
-  echo "[Info] Updating custom mountpoint permissions..."
-  IFS=':' read -r -a dirs <<< "${AMP_MOUNTPOINTS}"
-  for dir in "${dirs[@]}"; do
-    [[ -n "${dir}" ]] || continue
-    if [[ -e "${dir}" ]]; then
-      chown -R amp:amp "${dir}" 2>/dev/null || echo "[Warn] chown failed for ${dir}; continuing"
-    else
-      echo "[Warn] Mountpoint not found: ${dir}; skipping"
-    fi
-  done
 fi
 
 # Run custom start script if it exists (non-fatal)
