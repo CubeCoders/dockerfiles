@@ -6,7 +6,6 @@ FROM        debian:bookworm-slim
 LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
 
-ENV         AMP_CONTAINER="1"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         TARGETARCH
