@@ -1,7 +1,7 @@
-# Base Ubuntu 24.04 image for AMP containers
-# cubecoders/ampbase:ubuntu
+# Base Ubuntu 26.04 image for AMP containers
+# cubecoders/ampbase:ubuntu-26.04
 
-FROM        ubuntu:noble
+FROM        ubuntu:resolute
 
 LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
@@ -18,7 +18,7 @@ RUN         set -eux; \
                 ca-certificates curl wget tar unzip xz-utils bzip2 \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales gosu \
-                libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2debian libfontconfig1 \
+                libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2debian libfontconfig1 libicu78 \
                 # Required for Proton
                 python3 \
                 # Required for Core Keeper
