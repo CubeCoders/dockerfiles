@@ -2,11 +2,11 @@
 
 set -eo pipefail
 
-echo "[Info] AMPStart for Docker"
+echo "[Info] AMPStart for Docker/Podman"
 ARCH=$(uname -m)
 
 # Context check
-[[ -z "${AMPUSERID}" ]] && { echo "[Error] This docker image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
+[[ -z "${AMPUSERID}" ]] && { echo "[Error] This image cannot be used directly by itself - it must be started by ampinstmgr"; exit 100; }
 
 # Create /etc/machine-id using the instance UUID if AMP_INSTANCE_ID exists (addresses Proton/dbus issues)
 mkdir -p /var/lib/dbus
