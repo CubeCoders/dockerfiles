@@ -23,13 +23,13 @@ jobs:
       apps_json: ${{ steps.emit.outputs.apps_json }}
     steps:
       - if: ${{ github.event_name == 'push' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - if: ${{ github.event_name == 'push' }}
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             postgresql_changed:
@@ -86,21 +86,21 @@ jobs:
         app: ${{ fromJSON(needs.check_changes.outputs.apps_json) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - run: docker buildx prune -af
 
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: .
           file: ./apps/${{ matrix.app }}/Dockerfile
