@@ -28,7 +28,7 @@ jobs:
             allow_failure: true
           - base: 'ubuntu'
             allow_failure: true
-          - base: 'ubuntu-26.04'
+          - base: 'ubuntu-24.04'
             allow_failure: true
     continue-on-error: ${{ matrix.allow_failure }}
 
