@@ -1,4 +1,4 @@
-# Python image for AMP containers including Python 3.10, 3.11, 3.12, 3.13 (default) and 3.14 from upstream
+# Python image for AMP containers including Python 3.10, 3.11, 3.12, 3.13 (default), 3.14 and 3.15 from upstream
 # cubecoders/ampbase:python-3
 
 FROM        python:3.10-slim-trixie AS py310
