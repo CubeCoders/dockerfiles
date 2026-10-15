@@ -134,6 +134,10 @@ RUN         set -eux; \
                 done; \
             done; \
             python${PYTHON_DEFAULT} -m pip install --no-cache-dir --upgrade pip setuptools wheel; \
+            # Rewrite pip scripts (old pip uninstalls delete siblings' pipX.Y); default last owns pip/pip3
+            for v in ${PYTHON_NON_DEFAULT} ${PYTHON_DEFAULT}; do \
+                python${v} -m pip install --no-cache-dir --force-reinstall --no-deps pip; \
+            done; \
             for shim in python python3 python${PYTHON_DEFAULT} pip pip3 pip${PYTHON_DEFAULT}; do \
                 ln -sf "/usr/local/bin/${shim}" "/usr/bin/${shim}"; \
             done
