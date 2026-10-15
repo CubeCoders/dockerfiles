@@ -48,7 +48,19 @@ RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
             /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
-            
+
+FROM        python:3.15-slim-trixie AS py315
+
+ENV         DEBIAN_FRONTEND="noninteractive"
+
+ARG         PYTHON_VERSION="3.15"
+
+COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
+RUN         chmod +x /usr/local/bin/find-deps.sh
+
+RUN         set -eux; \
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
+
 FROM        python:3.13-slim-trixie AS py313
 
 ENV         DEBIAN_FRONTEND="noninteractive"
@@ -69,7 +81,7 @@ ENV         AMP_ADDITIONAL_ENV_VARS="PIP_DISABLE_PIP_VERSION_CHECK"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         PYTHON_DEFAULT="3.13"
-ARG         PYTHON_NON_DEFAULT="3.10 3.11 3.12 3.14"
+ARG         PYTHON_NON_DEFAULT="3.10 3.11 3.12 3.14 3.15"
 
 # Drop in upstream Python 3.10
 COPY        --from=py310 /usr/local/ /usr/local/
@@ -90,6 +102,11 @@ COPY        --from=py312 /tmp/3.12-run-deps.txt /tmp/3.12-run-deps.txt
 COPY        --from=py314 /usr/local/ /usr/local/
 
 COPY        --from=py314 /tmp/3.14-run-deps.txt /tmp/3.14-run-deps.txt
+
+# Drop in upstream Python 3.15
+COPY        --from=py315 /usr/local/ /usr/local/
+
+COPY        --from=py315 /tmp/3.15-run-deps.txt /tmp/3.15-run-deps.txt
 
 # Drop in upstream Python 3.13 (default last)
 COPY        --from=py313 /usr/local/ /usr/local/
