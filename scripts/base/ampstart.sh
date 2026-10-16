@@ -23,7 +23,6 @@ chmod 0444 /etc/machine-id
 install -d -o root -g root -m 1777 /tmp/.X11-unix
 
 # Set up amp user and group
-: "${AMPUSERID:?AMPUSERID not set}"
 : "${AMPGROUPID:?AMPGROUPID not set}"
 
 echo "[Info] Setting up amp user and group..."
@@ -78,18 +77,26 @@ if [[ -f "/AMP/customstart.sh" ]]; then
   ( set +e; /AMP/customstart.sh; rc=$?; ((rc==0)) || echo "[Warn] customstart.sh exited with $rc; continuing" )
 fi
 
+# Image-specific start hooks (sourced; may set AMP_PATH or append to AMP_ADDITIONAL_ENV_VARS)
+AMP_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+for hook in /ampstart.d/*.sh; do
+  [[ -f "${hook}" ]] || continue
+  echo "[Info] Running hook ${hook}..."
+  # shellcheck disable=SC1090
+  source "${hook}"
+done
+
 # Set XDG_RUNTIME_DIR (stop Wine/Proton whining)
 XDG_RUNTIME_DIR="/run/user/${AMPUSERID}"
 install -d -m 0700 -o amp -g amp "${XDG_RUNTIME_DIR}"
 
 # Handoff
 echo "[Info] Starting AMP..."
-ARGS=$@
 keep_env=(
   HOME=/home/amp
   USER=amp LOGNAME=amp SHELL=/bin/bash
   LANG="${LANG:-en_US.UTF-8}" LANGUAGE="${LANGUAGE:-en_US:en}" LC_ALL="${LC_ALL:-en_US.UTF-8}"
-  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+  PATH="${AMP_PATH}"
   MAIL=/var/mail/amp
   XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}"
 )
@@ -104,5 +111,7 @@ if [[ -n "${AMP_ADDITIONAL_ENV_VARS-}" ]]; then
   done
 fi
 
+# AMP shell-escapes its args (LocalInstanceManager ShellEscape) for this bash -c re-parse; don't pass "$@" verbatim
+ARGS=$@
 exec gosu amp:amp env -i "${keep_env[@]}" \
   bash -c "cd /AMP && exec ${AMP_BIN} ${ARGS}"

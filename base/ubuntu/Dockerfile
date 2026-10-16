@@ -31,7 +31,7 @@ RUN         set -eux; \
                 libgdiplus \
                 # Required for Pavlov VR (and variously some others)
                 gdb libc++1 libc++abi1 libunwind8 libgcc-s1; \
-            \  
+            \
             case "$TARGETARCH" in \
                 amd64) \
                     dpkg --add-architecture i386; \
@@ -65,22 +65,6 @@ RUN         set -eux; \
                         box86-generic-arm:armhf box64-generic-arm; \
                     ;; \
             esac; \
-            \
-            # Temp fix if libssl1.1 needed
-            case "${TARGETARCH}" in \
-                amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb;; \
-                arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_arm64.deb;; \
-            esac; \
-            apt-get install -y ./libssl1.1.deb; \
-            rm libssl1.1.deb; \
-            \
-            # Install AMP instance manager
-            case "${TARGETARCH}" in \
-                amd64) wget -q https://cdn-repo.c7rs.com/ampinstmgr-latest.tgz;; \
-                arm64) wget -q https://cdn-repo.c7rs.com/aarch64/ampinstmgr-latest.tgz;; \
-            esac; \
-            tar -xzf ampinstmgr-latest.tgz -C /; \
-            rm ampinstmgr-latest.tgz; \
             \
             # Set up locales
             sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen; \

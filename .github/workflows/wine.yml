@@ -53,28 +53,15 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-
-      - uses: docker/login-action@v4
+      - uses: ./.github/actions/build-image
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - run: docker buildx prune -af
-
-      - uses: docker/build-push-action@v7
-        with:
-          context: .
           file: ./wine/common/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
-          push: true
-          pull: true
           tags: cubecoders/ampbase:wine-common
           cache-from: type=gha,scope=${{ github.workflow }}-common
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-common
-          provenance: mode=max
-          sbom: true
+          smoke: cabextract --version
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build_versions:
     needs: [build_wine_common]
@@ -83,59 +70,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - 'stable'
-          - 'devel'
-          - 'staging'
-          - '11-stable'
-          - '10-stable'
-          - '9-stable'
+        include:
+          - version: 'stable'
+            branch: 'stable'
+            alias: 'wine'
+          - version: 'devel'
+            branch: 'devel'
+          - version: 'staging'
+            branch: 'staging'
+          - version: '11-stable'
+            branch: 'stable'
+            target: '11'
+          - version: '10-stable'
+            branch: 'stable'
+            target: '10'
+          - version: '9-stable'
+            branch: 'stable'
+            target: '9'
 
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-
-      - uses: docker/login-action@v4
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-      - run: docker buildx prune -af
-
-      - if: ${{ matrix.version != 'stable' }}
-        uses: docker/build-push-action@v7
+      - uses: ./.github/actions/build-image
         with:
-          context: .
-          file: ./wine/${{ matrix.version }}/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
-          push: true
-          pull: true
-          tags: cubecoders/ampbase:wine-${{ matrix.version }}
-          cache-from: |
-            type=gha,scope=${{ github.workflow }}-common
-            type=gha,scope=${{ github.workflow }}-${{ matrix.version }}
-          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.version }}
-          provenance: mode=max
-          sbom: true
-
-      - if: ${{ matrix.version == 'stable' }}
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./wine/${{ matrix.version }}/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
-          push: true
-          pull: true
+          file: ./wine/Dockerfile
+          build-args: |
+            WINE_BRANCH=${{ matrix.branch }}
+            WINE_TARGET=${{ matrix.target }}
           tags: |
             cubecoders/ampbase:wine-${{ matrix.version }}
-            cubecoders/ampbase:wine
+            ${{ matrix.alias && format('cubecoders/ampbase:{0}', matrix.alias) || '' }}
           cache-from: |
             type=gha,scope=${{ github.workflow }}-common
             type=gha,scope=${{ github.workflow }}-${{ matrix.version }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.version }}
-          provenance: mode=max
-          sbom: true
+          smoke: wine --version | grep -E '^wine-${{ matrix.target || '[0-9]+' }}\.'
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -121,13 +121,14 @@ RUN         set -eux; \
             | sort -u)"; \
             printf '%s\n' "${PYTHON_PKGS}" | xargs -r apt-get purge --auto-remove -y; \
             \
+            # Reinstall gdb (base image dependency) which the purge removes via libpython3
             sort -u /tmp/*-run-deps.txt \
             | awk 'NF && $1 !~ /^#/' \
-            | xargs -r apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
+            | xargs -r apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends gdb; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/* /tmp/*-run-deps.txt; \
             \
-            for v in ${PYTHON_NON_DEFAULT}; do \  
+            for v in ${PYTHON_NON_DEFAULT}; do \
                 python${v} -m pip install --no-cache-dir --upgrade pip setuptools wheel; \
                 for shim in python${v} pip${v}; do \
                     [ -x "/usr/local/bin/${shim}" ] && ln -sf "/usr/local/bin/${shim}" "/usr/bin/${shim}"; \

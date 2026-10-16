@@ -17,10 +17,8 @@ RUN         set -eux; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                 sqlite3 ca-certificates iputils-ping util-linux; \
             # Install Apprise for notifications
-            wget -qO- http://ftp.debian.org/debian/pool/main/a/apprise/ | grep -oP 'href="apprise_.*?all\.deb"' | sed 's/href="//;s/"//' | sort -V | tail -n 1 | xargs -I {} wget -qO apprise.deb http://ftp.debian.org/debian/pool/main/a/apprise/{}; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
-                ./apprise.deb python3-paho-mqtt; \
-            rm -f apprise.deb; \
+                apprise python3-paho-mqtt; \
             # Install cloudflared
             install -d -m 0755 /etc/apt/keyrings; \
             wget -qO- https://pkg.cloudflare.com/cloudflare-main.gpg | gpg --dearmor -o /etc/apt/keyrings/cloudflare-main.gpg; \
@@ -34,8 +32,5 @@ RUN         set -eux; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
  
-COPY        ./scripts/apps/uptime-kuma-2/ampstart.sh /ampstart.sh
-RUN         chmod +x /ampstart.sh
-ENTRYPOINT  ["/usr/bin/tini", "-g", "--", "/ampstart.sh"]
-CMD         []
+COPY        ./scripts/apps/uptime-kuma-2/ampstart-hook.sh /ampstart.d/uptime-kuma-2.sh
             

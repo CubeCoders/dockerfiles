@@ -90,28 +90,22 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-
-      - uses: docker/login-action@v4
+      - uses: ./.github/actions/build-image
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - run: docker buildx prune -af
-
-      - uses: docker/build-push-action@v7
-        with:
-          context: .
           file: ./apps/${{ matrix.app }}/Dockerfile
           platforms: ${{ matrix.app == 'sinusbot' && 'linux/amd64' || 'linux/amd64,linux/arm64/v8' }}
-          push: true
-          pull: true
           tags: cubecoders/ampbase:${{ matrix.app }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.app }}
-          provenance: mode=max
-          sbom: true
+          smoke: |
+            case "${{ matrix.app }}" in
+              postgresql) gcc --version && bison --version ;;
+              redis) /opt/rust-bin/rustc --version && cmake --version && test -f /ampstart.d/redis.sh ;;
+              uptime-kuma-2) apprise --version && cloudflared --version && mariadb --version && test -f /ampstart.d/uptime-kuma-2.sh ;;
+              sinusbot) command -v x11vnc ;;
+            esac
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

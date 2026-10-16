@@ -17,7 +17,7 @@ RUN         set -eux; \
                 fontconfig binutils p11-kit; \
             install -d -m 0755 /etc/apt/keyrings; \
             wget -qO- https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg; \
-            printf 'Types: deb\nURIs: https://packages.adoptium.net/artifactory/deb\nSuites: trixie\nComponents: main\nSigned-By: /etc/apt/keyrings/adoptium.gpg\n' | tee /etc/apt/sources.list.d/adoptium.sources >/dev/null; \
+            printf 'Types: deb\nURIs: https://packages.adoptium.net/artifactory/deb\nSuites: %s\nComponents: main\nSigned-By: /etc/apt/keyrings/adoptium.gpg\n' "$(. /etc/os-release; echo "${VERSION_CODENAME}")" | tee /etc/apt/sources.list.d/adoptium.sources >/dev/null; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
                 temurin-25-jdk; \

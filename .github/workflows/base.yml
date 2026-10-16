@@ -23,56 +23,30 @@ jobs:
       matrix:
         include:
           - base: 'debian'
+            alias: 'latest'
             allow_failure: false
           - base: 'debian-12'
             allow_failure: true
           - base: 'ubuntu'
-            allow_failure: true
+            allow_failure: false  # redis builds on it
           - base: 'ubuntu-24.04'
             allow_failure: true
     continue-on-error: ${{ matrix.allow_failure }}
 
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
 
-      - uses: docker/login-action@v4
+      - uses: ./.github/actions/build-image
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - run: docker buildx prune -af
-
-      - if: ${{ matrix.base != 'debian' }}
-        uses: docker/build-push-action@v7
-        with:
-          context: .
           file: ./base/${{ matrix.base }}/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
-          push: true
-          pull: true
-          tags: cubecoders/ampbase:${{ matrix.base }}
-          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.base }}
-          cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.base }}
-          provenance: mode=max
-          sbom: true
-
-      - if: ${{ matrix.base == 'debian' }}
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./base/${{ matrix.base }}/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
-          push: true
-          pull: true
           tags: |
             cubecoders/ampbase:${{ matrix.base }}
-            cubecoders/ampbase:latest
+            ${{ matrix.alias && format('cubecoders/ampbase:{0}', matrix.alias) || '' }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.base }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.base }}
-          provenance: mode=max
-          sbom: true
+          smoke: locale -a | grep -qi '^en_US\.utf8$' && git --version && jq --version && xvfb-run --help >/dev/null && gdb --version
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
