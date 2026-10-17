@@ -12,6 +12,8 @@ ARG         TARGETARCH
 
 # Update base packages and install dependencies
 RUN         set -eux; \
+            # Free uid/gid 1000 for amp (else the host amp uid resolves to "ubuntu")
+            userdel -r ubuntu; \
             mkdir -p /usr/share/man/man1; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y \

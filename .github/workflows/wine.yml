@@ -71,16 +71,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # ntsync: rebuilt from WineHQ's source with NTSYNC (see scripts/wine/get-wine-debs.sh)
           - version: 'stable'
             branch: 'stable'
             alias: 'wine'
+            ntsync: true
           - version: 'devel'
             branch: 'devel'
+            ntsync: true
           - version: 'staging'
             branch: 'staging'
+            ntsync: true
           - version: '11-stable'
             branch: 'stable'
             target: '11'
+            ntsync: true
           - version: '10-stable'
             branch: 'stable'
             target: '10'
@@ -93,12 +98,25 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
+      # Two parallel Wine source builds (amd64 + i386) need more room than a stock runner leaves
+      - name: free runner disk
+        if: ${{ matrix.ntsync }}
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
+
+      - name: resolve Wine version
+        id: wine
+        env:
+          WINE_BRANCH: ${{ matrix.branch }}
+          WINE_TARGET: ${{ matrix.target }}
+        run: echo "build=$(sh scripts/wine/get-wine-debs.sh version)" >> "$GITHUB_OUTPUT"
+
       - uses: ./.github/actions/build-image
         with:
           file: ./wine/Dockerfile
           build-args: |
             WINE_BRANCH=${{ matrix.branch }}
             WINE_TARGET=${{ matrix.target }}
+            WINE_BUILD=${{ steps.wine.outputs.build }}
           tags: |
             cubecoders/ampbase:wine-${{ matrix.version }}
             ${{ matrix.alias && format('cubecoders/ampbase:{0}', matrix.alias) || '' }}
@@ -106,7 +124,9 @@ jobs:
             type=gha,scope=${{ github.workflow }}-common
             type=gha,scope=${{ github.workflow }}-${{ matrix.version }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.version }}
-          smoke: wine --version | grep -E '^wine-${{ matrix.target || '[0-9]+' }}\.'
+          smoke: |
+            wine --version | grep -E '^wine-${{ matrix.target || '[0-9]+' }}\.'
+            ${{ matrix.ntsync && 'grep -qa /dev/ntsync /opt/wine-*/bin/wineserver' || 'true' }}
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
