@@ -37,10 +37,10 @@ RUN         set -eux; \
             | sort -u)"; \
             printf '%s\n' "${PYTHON_PKGS}" | xargs -r apt-get purge --auto-remove -y; \
             \
-            # Reinstall gdb (base image dependency) which the purge removes via libpython3
+            # Don't reinstall gdb: its libpython3.13 dep restores /usr/lib/python3.13, which breaks venvs made via /usr/bin/python3
             sort -u /tmp/${PYTHON_VERSION}-run-deps.txt \
             | awk 'NF && $1 !~ /^#/' \
-            | xargs -r apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends gdb; \
+            | xargs -r apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/* /tmp/${PYTHON_VERSION}-run-deps.txt; \
             \

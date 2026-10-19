@@ -73,7 +73,7 @@ jobs:
             ${{ matrix.alias && format('cubecoders/ampbase:{0}', matrix.alias) || '' }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.python }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.python }}
-          smoke: python3 -c 'import ssl, sqlite3, ctypes, lzma, bz2' && pip3 --version && gdb --version
+          smoke: python3 -c 'import ssl, sqlite3, ctypes, lzma, bz2' && pip3 --version && /usr/bin/python3 -m venv /tmp/v && /tmp/v/bin/python -c 'import socket'
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
