@@ -79,5 +79,5 @@ STOPSIGNAL  SIGINT
 
 COPY        ./scripts/base/ampstart.sh /ampstart.sh
 RUN         chmod +x /ampstart.sh
-ENTRYPOINT  ["/usr/bin/tini", "-g", "--", "/ampstart.sh"]
+ENTRYPOINT  ["/usr/bin/tini", "--", "/ampstart.sh"]
 CMD         []
