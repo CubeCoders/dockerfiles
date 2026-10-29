@@ -1,0 +1,88 @@
+name: build amp3 image
+description: Build an AMP3 image for linux/amd64 and smoke test it, then build and push every platform it lists
+
+inputs:
+  context:
+    description: The directory holding images.json, which is also the build context
+    default: amp3
+  dockerfile:
+    description: Dockerfile path relative to the context, as images.json names it
+    required: true
+  tags:
+    description: Newline-separated image references to push
+    required: true
+  platforms:
+    description: Comma-separated platforms to push
+    required: true
+  build-args:
+    description: Newline-separated build args
+    default: ''
+  cache-scope:
+    description: GitHub Actions cache scope for this image
+    required: true
+  wine-build:
+    description: The resolved WineHQ version, for the Wine images
+    default: ''
+  wine-target:
+    description: The major Wine version the tag holds to, for the Wine images
+    default: ''
+  dockerhub-username:
+    required: true
+  dockerhub-token:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: docker/setup-qemu-action@v4
+    - uses: docker/setup-buildx-action@v4
+
+    - uses: docker/login-action@v4
+      with:
+        username: ${{ inputs.dockerhub-username }}
+        password: ${{ inputs.dockerhub-token }}
+
+    - if: ${{ contains(format(',{0},', inputs.platforms), ',linux/amd64,') }}
+      uses: docker/build-push-action@v7
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.context }}/${{ inputs.dockerfile }}
+        platforms: linux/amd64
+        load: true
+        pull: true
+        provenance: false
+        tags: amp3base-smoke:local
+        build-args: ${{ inputs.build-args }}
+        cache-from: type=gha,scope=${{ inputs.cache-scope }}
+
+    - name: smoke test
+      if: ${{ contains(format(',{0},', inputs.platforms), ',linux/amd64,') }}
+      shell: bash
+      env:
+        SMOKE_RUNTIME: docker
+        CONTEXT: ${{ inputs.context }}
+        DOCKERFILE: ${{ inputs.dockerfile }}
+        WINE_BUILD: ${{ inputs.wine-build }}
+        WINE_TARGET: ${{ inputs.wine-target }}
+      run: bash "${CONTEXT}/scripts/smoke.sh" amp3base-smoke:local "${DOCKERFILE}" "${WINE_BUILD}" "${WINE_TARGET}"
+
+    - name: not smoked
+      if: ${{ !contains(format(',{0},', inputs.platforms), ',linux/amd64,') }}
+      shell: bash
+      env:
+        PLATFORMS: ${{ inputs.platforms }}
+      run: |
+        echo "::warning::Not smoked: the image is not published for linux/amd64 (${PLATFORMS})."
+
+    - uses: docker/build-push-action@v7
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.context }}/${{ inputs.dockerfile }}
+        platforms: ${{ inputs.platforms }}
+        push: true
+        pull: true
+        provenance: false
+        tags: ${{ inputs.tags }}
+        build-args: ${{ inputs.build-args }}
+        cache-from: type=gha,scope=${{ inputs.cache-scope }}
+        cache-to: type=gha,mode=max,scope=${{ inputs.cache-scope }}

@@ -1,0 +1,62 @@
+name: build amp3 level
+on:
+  workflow_call:
+    inputs:
+      images:
+        description: JSON array of plan entries, every one at the same level
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 'amp3base:${{ matrix.image.tag }}'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(inputs.images) }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Resolved here rather than inside the build, so a cached build follows WineHQ's releases.
+      - name: resolve Wine version
+        id: wine
+        if: ${{ matrix.image.wine }}
+        shell: bash
+        env:
+          WINE_BRANCH: ${{ matrix.image.wine_branch }}
+          WINE_TARGET: ${{ matrix.image.wine_target }}
+          WINE_DIST: ${{ matrix.image.wine_dist }}
+        run: |
+          set -euo pipefail
+          build="$(sh amp3/scripts/wine/get-wine-debs.sh version)"
+          echo "Wine ${WINE_BRANCH} ${build}"
+          echo "build=${build}" >> "$GITHUB_OUTPUT"
+          if dpkg --compare-versions "$build" ge 10.15; then echo "ntsync=true" >> "$GITHUB_OUTPUT"; fi
+
+      # Two parallel Wine source builds (amd64 and i386) need more room than a stock runner leaves.
+      - name: free runner disk
+        if: ${{ steps.wine.outputs.ntsync == 'true' }}
+        shell: bash
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
+
+      - uses: ./.github/actions/amp3-build-image
+        with:
+          dockerfile: ${{ matrix.image.dockerfile }}
+          tags: ${{ matrix.image.refs }}
+          platforms: ${{ matrix.image.platforms }}
+          build-args: |
+            ${{ matrix.image.args }}
+            ${{ steps.wine.outputs.build && format('WINE_BUILD={0}', steps.wine.outputs.build) || '' }}
+          cache-scope: amp3-${{ matrix.image.tag }}
+          wine-build: ${{ steps.wine.outputs.build }}
+          wine-target: ${{ matrix.image.wine_target }}
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}

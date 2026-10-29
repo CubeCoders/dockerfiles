@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/CubeCoders/dockerfiles/master/amp3/images.schema.json",
+  "title": "AMPBase v3 image family",
+  "description": "The build matrix for the cubecoders/amp3base image family, and the list AMP3 reads to learn which images exist. One file serves both so that a tag cannot be built but unlisted, or listed but unbuilt. Entries are in BUILD ORDER: an image's \"from\" must appear earlier in the file than the image itself. Rules the schema cannot express (unique names across tags and aliases, that ordering, Dockerfiles that exist) are checked by build-images.sh.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "repository", "images"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "description": "Format version. AMP3 keeps its last good copy rather than reading a version it does not understand, so this only changes when a reader would otherwise misinterpret the file.",
+      "type": "integer",
+      "const": 1
+    },
+    "repository": {
+      "description": "The repository every image in this file is published under.",
+      "$ref": "#/$defs/repository"
+    },
+    "replaces": {
+      "description": "Repositories this family supersedes tag for tag. A template or a migrated instance naming <repository>:<tag> from this list is given <this repository>:<tag> instead, provided the tag exists here or in \"retired\". AMP2's cubecoders/ampbase is the reason this exists.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/repository" }
+    },
+    "images": {
+      "description": "Every image the family builds, in build order.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/image" }
+    },
+    "retired": {
+      "description": "Tags a superseded repository published and no longer maintains, mapped to the nearest tag this family still builds. Honoured only under a repository listed in \"replaces\": nothing of this family was ever called these.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/tag" },
+      "additionalProperties": { "$ref": "#/$defs/tag" }
+    },
+    "refused": {
+      "description": "Tags of a superseded repository that have NO equivalent here and never will. Naming one is refused outright rather than mapped to something that cannot work.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/tag" }
+    }
+  },
+  "$defs": {
+    "tag": {
+      "description": "An image tag. Lower case only, so a tag has exactly one spelling.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "repository": {
+      "description": "A Docker Hub style repository name without a registry host, e.g. cubecoders/amp3base.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*/[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["linux/amd64", "linux/arm64"]
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tag", "dockerfile", "platforms"],
+      "properties": {
+        "tag": {
+          "description": "The canonical tag. This is the name a spire pulls, whatever name the template used.",
+          "$ref": "#/$defs/tag"
+        },
+        "aliases": {
+          "description": "Floating names published for the same image (java for java-lts, latest for debian). Resolved to the canonical tag before pulling, so a spire never holds one image under two names.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/tag" }
+        },
+        "description": {
+          "description": "One sentence for humans: the README table and any UI that lists images.",
+          "type": "string",
+          "maxLength": 200
+        },
+        "dockerfile": {
+          "description": "Path of the Dockerfile, relative to this file's directory, which is also the build context.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$"
+        },
+        "from": {
+          "description": "The tag in THIS family the Dockerfile builds FROM, passed to it as the AMPBASE build arg so a build against a rehearsal registry follows the repository it was given. Absent or null means the Dockerfile names an outside base image itself (the distro bases).",
+          "oneOf": [
+            { "$ref": "#/$defs/tag" },
+            { "type": "null" }
+          ]
+        },
+        "platforms": {
+          "description": "Where the image is published. A spire on an architecture not listed here cannot run the image, and a multi-arch push builds exactly these.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/platform" }
+        },
+        "args": {
+          "description": "Build args that distinguish this tag from the others its Dockerfile produces. Names as the Dockerfile declares them; values are strings even when they look like numbers or lists.",
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "additionalProperties": { "type": "string" }
+        },
+        "internal": {
+          "description": "Published for other images to build FROM, not for templates to name. Pulling it is not an error, but nothing offers it.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

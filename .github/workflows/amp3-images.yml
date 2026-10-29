@@ -1,0 +1,175 @@
+name: build amp3
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: Canonical tags to build, separated by spaces or commas (empty builds every image)
+        required: false
+        default: ''
+        type: string
+  schedule:
+    - cron: '0 6 * * 1'
+  push:
+    branches:
+      - master
+    paths:
+      - 'amp3/**'
+      - '!amp3/published/**'
+      - '.github/workflows/amp3-images.yml'
+      - '.github/workflows/amp3-images-build.yml'
+      - '.github/actions/amp3-build-image/**'
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    if: ${{ github.repository_owner == 'CubeCoders' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    outputs:
+      level0: ${{ steps.plan.outputs.level0 }}
+      level1: ${{ steps.plan.outputs.level1 }}
+      level2: ${{ steps.plan.outputs.level2 }}
+      level3: ${{ steps.plan.outputs.level3 }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Levels follow "from": an image builds one level after the image it builds FROM.
+      - id: plan
+        shell: bash
+        env:
+          TAGS: ${{ inputs.tags }}
+        run: |
+          set -euo pipefail
+          read -r -a only <<<"${TAGS//,/ }"
+          bash amp3/build-images.sh --dry-run "${only[@]}"
+          plan="$(jq -c --argjson only "$(jq -cn '$ARGS.positional' --args "${only[@]}")" '
+            .repository as $repo
+            | (reduce .images[] as $i ({}; .[$i.tag] = (if ($i.from // null) == null then 0 else .[$i.from] + 1 end))) as $level
+            | [ .images[]
+                | . as $i
+                | select(($only | length) == 0 or any($only[]; . == $i.tag))
+                | { tag: $i.tag,
+                    level: $level[$i.tag],
+                    dockerfile: $i.dockerfile,
+                    platforms: ($i.platforms | join(",")),
+                    refs: ([$i.tag] + ($i.aliases // []) | map("\($repo):\(.)") | join("\n")),
+                    args: ((($i.args // {}) | to_entries | map("\(.key)=\(.value)"))
+                           + (if ($i.from // null) != null then ["AMPBASE=\($repo):\($i.from)"] else [] end)
+                           | join("\n")),
+                    wine: ($i.dockerfile == "wine/Dockerfile"),
+                    wine_branch: ($i.args.WINE_BRANCH // ""),
+                    wine_target: ($i.args.WINE_TARGET // ""),
+                    wine_dist: ($i.args.WINE_DIST // "") } ]' amp3/images.json)"
+          depth="$(jq '[.[].level] | max' <<<"$plan")"
+          if ((depth > 3)); then
+            echo "::error::images.json nests ${depth} levels of \"from\" below a base; this workflow builds levels 0 to 3. Add a level job."
+            exit 1
+          fi
+          for n in 0 1 2 3; do
+            echo "level${n}=$(jq -c --argjson n "$n" 'map(select(.level == $n) | del(.level))' <<<"$plan")" >> "$GITHUB_OUTPUT"
+            jq -r --argjson n "$n" '"level \($n): " + (map(select(.level == $n) | .tag) | join(" "))' <<<"$plan"
+          done
+
+  level0:
+    name: level 0
+    needs: [plan]
+    if: ${{ needs.plan.outputs.level0 != '[]' }}
+    uses: ./.github/workflows/amp3-images-build.yml
+    with:
+      images: ${{ needs.plan.outputs.level0 }}
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  level1:
+    name: level 1
+    needs: [plan, level0]
+    if: ${{ !cancelled() && !failure() && needs.plan.result == 'success' && needs.plan.outputs.level1 != '[]' }}
+    uses: ./.github/workflows/amp3-images-build.yml
+    with:
+      images: ${{ needs.plan.outputs.level1 }}
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  level2:
+    name: level 2
+    needs: [plan, level1]
+    if: ${{ !cancelled() && !failure() && needs.plan.result == 'success' && needs.plan.outputs.level2 != '[]' }}
+    uses: ./.github/workflows/amp3-images-build.yml
+    with:
+      images: ${{ needs.plan.outputs.level2 }}
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  level3:
+    name: level 3
+    needs: [plan, level2]
+    if: ${{ !cancelled() && !failure() && needs.plan.result == 'success' && needs.plan.outputs.level3 != '[]' }}
+    uses: ./.github/workflows/amp3-images-build.yml
+    with:
+      images: ${{ needs.plan.outputs.level3 }}
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  # The catalogue AMP3 reads is published only once every name it lists can be pulled.
+  promote:
+    name: publish images.json
+    needs: [plan, level0, level1, level2, level3]
+    if: ${{ !cancelled() && !failure() && needs.plan.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: check every tag and alias on Docker Hub
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=()
+          while IFS=$'\t' read -r ref platforms; do
+            if ! answer="$(docker manifest inspect "$ref" 2>/dev/null)"; then
+              missing+=("${ref} (not found)")
+              continue
+            fi
+            # A single-platform push answers with an image manifest rather than a list.
+            absent="$(jq -r --arg want "$platforms" '
+              ($want | split(",")) as $w
+              | if has("manifests")
+                then [.manifests[].platform | "\(.os)/\(.architecture)"] as $have | $w - $have
+                elif ($w | length) == 1 then []
+                else $w end
+              | join(",")' <<<"$answer")"
+            if [[ -n "$absent" ]]; then missing+=("${ref} (no ${absent})"); else echo "${ref}: ${platforms}"; fi
+          done < <(jq -r '.repository as $r | .images[] | (.platforms | join(",")) as $p | ([.tag] + (.aliases // []))[] | "\($r):\(.)\t\($p)"' amp3/images.json)
+          if ((${#missing[@]})); then
+            printf '::error::Not on Docker Hub: %s\n' "${missing[@]}"
+            exit 1
+          fi
+
+      - name: commit amp3/published/images.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp amp3/images.json "${RUNNER_TEMP}/images.json"
+          git fetch --depth=1 origin master
+          git checkout -B master FETCH_HEAD
+          mkdir -p amp3/published
+          cp "${RUNNER_TEMP}/images.json" amp3/published/images.json
+          git add amp3/published/images.json
+          if git diff --cached --quiet; then
+            echo "amp3/published/images.json already matches amp3/images.json."
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "Publish amp3/images.json [skip ci]"
+          git push origin master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false

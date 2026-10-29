@@ -1,0 +1,7 @@
+# LF everywhere: these files are copied into Linux images.
+**/Dockerfile* text eol=lf
+scripts/** text eol=lf
+build-images.sh text eol=lf
+*.json text eol=lf
+.github/** text eol=lf
+README.md text eol=lf

@@ -1,0 +1,216 @@
+{
+  "$schema": "./images.schema.json",
+  "schemaVersion": 1,
+  "repository": "cubecoders/amp3base",
+  "replaces": ["cubecoders/ampbase"],
+  "images": [
+    {
+      "tag": "debian",
+      "aliases": ["latest"],
+      "description": "Debian 13 base. The default image, and the base every other image builds on.",
+      "dockerfile": "base/Dockerfile",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "BASE_IMAGE": "debian:trixie-slim", "T64": "t64", "LIBICU": "libicu76", "LEGACY_NCURSES": "" }
+    },
+    {
+      "tag": "debian-12",
+      "description": "Debian 12 base, for titles that still need the pre-t64 library names.",
+      "dockerfile": "base/Dockerfile",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "BASE_IMAGE": "debian:bookworm-slim", "T64": "", "LIBICU": "", "LEGACY_NCURSES": "libncurses5 libtinfo5" }
+    },
+    {
+      "tag": "ubuntu",
+      "description": "Ubuntu 26.04 base.",
+      "dockerfile": "base/Dockerfile",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "BASE_IMAGE": "ubuntu:resolute", "T64": "t64", "LIBICU": "libicu78", "LEGACY_NCURSES": "" }
+    },
+    {
+      "tag": "ubuntu-24.04",
+      "description": "Ubuntu 24.04 base.",
+      "dockerfile": "base/Dockerfile",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "BASE_IMAGE": "ubuntu:noble", "T64": "t64", "LIBICU": "", "LEGACY_NCURSES": "" }
+    },
+
+    {
+      "tag": "java-lts",
+      "aliases": ["java"],
+      "description": "Adoptium Temurin 8, 11, 17, 21 and 25, with 21 as the default java.",
+      "dockerfile": "java/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "JAVA_VERSIONS": "8 11 17 21 25", "JAVA_DEFAULT": "21" }
+    },
+    {
+      "tag": "java-25",
+      "description": "Adoptium Temurin 25 only.",
+      "dockerfile": "java/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "JAVA_VERSIONS": "25", "JAVA_DEFAULT": "25" }
+    },
+
+    {
+      "tag": "python-3.10",
+      "description": "Official upstream Python 3.10 build.",
+      "dockerfile": "python/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "PYTHON_VERSION": "3.10" }
+    },
+    {
+      "tag": "python-3.11",
+      "description": "Official upstream Python 3.11 build.",
+      "dockerfile": "python/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "PYTHON_VERSION": "3.11" }
+    },
+    {
+      "tag": "python-3.12",
+      "description": "Official upstream Python 3.12 build.",
+      "dockerfile": "python/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "PYTHON_VERSION": "3.12" }
+    },
+    {
+      "tag": "python-3.13",
+      "description": "Official upstream Python 3.13 build.",
+      "dockerfile": "python/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "PYTHON_VERSION": "3.13" }
+    },
+    {
+      "tag": "python-3.14",
+      "description": "Official upstream Python 3.14 build.",
+      "dockerfile": "python/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "PYTHON_VERSION": "3.14" }
+    },
+    {
+      "tag": "python-3.15",
+      "description": "Official upstream Python 3.15 build.",
+      "dockerfile": "python/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "PYTHON_VERSION": "3.15" }
+    },
+    {
+      "tag": "python-3",
+      "aliases": ["python3"],
+      "description": "Official upstream Python 3.10 to 3.15 builds, with 3.13 as the default python3.",
+      "dockerfile": "python/Dockerfile.all",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+
+    {
+      "tag": "mono-latest",
+      "aliases": ["mono"],
+      "description": "The latest official Mono build.",
+      "dockerfile": "mono/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+
+    {
+      "tag": "wine-common",
+      "description": "The dependency layer every Wine image shares. Carries no Wine; not for templates.",
+      "dockerfile": "wine/Dockerfile.common",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "internal": true
+    },
+    {
+      "tag": "wine-stable",
+      "aliases": ["wine"],
+      "description": "WineHQ stable branch.",
+      "dockerfile": "wine/Dockerfile",
+      "from": "wine-common",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "WINE_BRANCH": "stable", "WINE_TARGET": "" }
+    },
+    {
+      "tag": "wine-devel",
+      "description": "WineHQ development branch.",
+      "dockerfile": "wine/Dockerfile",
+      "from": "wine-common",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "WINE_BRANCH": "devel", "WINE_TARGET": "" }
+    },
+    {
+      "tag": "wine-staging",
+      "description": "WineHQ staging branch.",
+      "dockerfile": "wine/Dockerfile",
+      "from": "wine-common",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "WINE_BRANCH": "staging", "WINE_TARGET": "" }
+    },
+    {
+      "tag": "wine-11-stable",
+      "description": "WineHQ stable branch, held at Wine 11.",
+      "dockerfile": "wine/Dockerfile",
+      "from": "wine-common",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "WINE_BRANCH": "stable", "WINE_TARGET": "11" }
+    },
+    {
+      "tag": "wine-10-stable",
+      "description": "WineHQ stable branch, held at Wine 10.",
+      "dockerfile": "wine/Dockerfile",
+      "from": "wine-common",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "WINE_BRANCH": "stable", "WINE_TARGET": "10" }
+    },
+    {
+      "tag": "wine-9-stable",
+      "description": "WineHQ stable branch, held at Wine 9.",
+      "dockerfile": "wine/Dockerfile",
+      "from": "wine-common",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "args": { "WINE_BRANCH": "stable", "WINE_TARGET": "9" }
+    },
+
+    {
+      "tag": "postgresql",
+      "description": "Toolchain and headers for building PostgreSQL from source.",
+      "dockerfile": "apps/postgresql/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+    {
+      "tag": "uptime-kuma-2",
+      "description": "Dependencies for Uptime Kuma 2, including its embedded MariaDB.",
+      "dockerfile": "apps/uptime-kuma-2/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+    {
+      "tag": "sinusbot",
+      "description": "Dependencies for SinusBot and its TeamSpeak client. x86_64 only; SinusBot publishes no aarch64 build.",
+      "dockerfile": "apps/sinusbot/Dockerfile",
+      "from": "debian",
+      "platforms": ["linux/amd64"]
+    },
+    {
+      "tag": "redis",
+      "description": "Toolchain for building Redis and its modules from source, on the Ubuntu base.",
+      "dockerfile": "apps/redis/Dockerfile",
+      "from": "ubuntu",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    }
+  ],
+  "retired": {
+    "deb12": "debian-12",
+    "deb11": "debian-12",
+    "xvfb": "debian",
+    "java8": "java-lts",
+    "wine8": "wine-9-stable"
+  },
+  "refused": ["node", "ads"]
+}
