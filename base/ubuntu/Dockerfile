@@ -64,9 +64,17 @@ RUN         set -eux; \
                     \
                     # Add box86/box64
                     install -d -m 0755 /etc/apt/keyrings; \
-                    wget -qO- "https://pi-apps-coders.github.io/box86-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box86-archive-keyring.gpg; \
+                    wget -qO /tmp/apt.key "https://pi-apps-coders.github.io/box86-debs/KEY.gpg"; \
+                    [ "$(gpg --show-keys --with-colons /tmp/apt.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "32F9ECBF8E64E9C22F95AEB34DBE689F87D192A5" ] \
+                        || { echo "Unexpected signing key at https://pi-apps-coders.github.io/box86-debs/KEY.gpg" >&2; exit 1; }; \
+                    gpg --dearmor -o /etc/apt/keyrings/box86-archive-keyring.gpg /tmp/apt.key; \
+                    rm -rf /tmp/apt.key /root/.gnupg; \
                     printf "Types: deb\nURIs: https://Pi-Apps-Coders.github.io/box86-debs/debian\nSuites: ./\nSigned-By: /etc/apt/keyrings/box86-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box86.sources >/dev/null; \
-                    wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg; \
+                    wget -qO /tmp/apt.key "https://pi-apps-coders.github.io/box64-debs/KEY.gpg"; \
+                    [ "$(gpg --show-keys --with-colons /tmp/apt.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "32F9ECBF8E64E9C22F95AEB34DBE689F87D192A5" ] \
+                        || { echo "Unexpected signing key at https://pi-apps-coders.github.io/box64-debs/KEY.gpg" >&2; exit 1; }; \
+                    gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg /tmp/apt.key; \
+                    rm -rf /tmp/apt.key /root/.gnupg; \
                     printf "Types: deb\nURIs: https://Pi-Apps-Coders.github.io/box64-debs/debian\nSuites: ./\nSigned-By: /etc/apt/keyrings/box64-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box64.sources >/dev/null; \
                     apt-get update; \
                     apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \

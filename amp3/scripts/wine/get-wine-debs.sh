@@ -36,7 +36,11 @@ require_version "${WINE_BUILD}"
 echo "Wine ${BRANCH} ${WINE_BUILD} for ${ARCH}"
 
 install -d -m 0755 /etc/apt/keyrings
-curl -fsSL https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key
+curl -fsSL -o /tmp/winehq.key https://dl.winehq.org/wine-builds/winehq.key
+[ "$(gpg --show-keys --with-colons /tmp/winehq.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "D43F640145369C51D786DDEA76F1A20FF987672F" ] \
+  || { echo "Unexpected signing key at https://dl.winehq.org/wine-builds/winehq.key" >&2; exit 1; }
+gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key /tmp/winehq.key
+rm -rf /tmp/winehq.key "${HOME:-/root}/.gnupg"
 printf 'Types: deb deb-src\nURIs: https://dl.winehq.org/wine-builds/debian\nSuites: %s\nComponents: main\nArchitectures: amd64 i386\nSigned-By: /etc/apt/keyrings/winehq-archive.key\n' \
   "${DIST}" > /etc/apt/sources.list.d/winehq.sources
 mkdir -p /out

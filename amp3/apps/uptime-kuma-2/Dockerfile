@@ -22,7 +22,11 @@ RUN         set -eux; \
                 apprise python3-paho-mqtt; \
             # Install cloudflared
             install -d -m 0755 /etc/apt/keyrings; \
-            wget -qO- https://pkg.cloudflare.com/cloudflare-main.gpg | gpg --dearmor -o /etc/apt/keyrings/cloudflare-main.gpg; \
+            wget -qO /tmp/apt.key "https://pkg.cloudflare.com/cloudflare-main.gpg"; \
+            [ "$(gpg --show-keys --with-colons /tmp/apt.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "CC94B39C77AE7342A68B89628A682D308D4E5E73" ] \
+                || { echo "Unexpected signing key at https://pkg.cloudflare.com/cloudflare-main.gpg" >&2; exit 1; }; \
+            gpg --dearmor -o /etc/apt/keyrings/cloudflare-main.gpg /tmp/apt.key; \
+            rm -rf /tmp/apt.key /root/.gnupg; \
             printf 'Types: deb\nURIs: https://pkg.cloudflare.com/cloudflared\nSuites: any\nComponents: main\nSigned-By: /etc/apt/keyrings/cloudflare-main.gpg\n' | tee /etc/apt/sources.list.d/cloudflared.sources >/dev/null; \
             apt-get update; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends -t stable \

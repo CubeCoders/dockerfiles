@@ -18,6 +18,7 @@ RUN         sh /usr/local/bin/get-wine-debs.sh i386
 
 FROM        cubecoders/ampbase:wine-common
 
+LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         DEBIAN_FRONTEND="noninteractive"
@@ -49,7 +50,7 @@ RUN         --mount=type=bind,from=debs-amd64,source=/out,target=/tmp/wine-debs/
                     rm -rf /wine-installer; \
                     \
                     for file in /opt/wine-"${WINE_BRANCH}"/bin/*; do \
-                        [ -x "${file}" ] && ln -sf "${file}" /usr/bin/"$(basename "${file}")"; \
+                        if [ -x "${file}" ]; then ln -sf "${file}" /usr/bin/"$(basename "${file}")"; fi; \
                     done; \
                     ;; \
             esac; \

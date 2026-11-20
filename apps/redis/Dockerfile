@@ -3,6 +3,7 @@
 
 FROM        cubecoders/ampbase:ubuntu
 
+LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         CARGO_HOME="/usr/local/cargo"

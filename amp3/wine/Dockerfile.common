@@ -9,7 +9,7 @@ FROM        --platform=${DEPSFINDER_PLATFORM} debian:trixie-slim AS depsfinder
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         WINE_DIST="trixie"
-ARG         WINE_BRANCHES="stable devel staging 11-stable 10-stable 9-stable"
+ARG         WINE_BRANCHES="stable devel staging 11-stable 10-stable"
 
 COPY        scripts/wine/find-deps.sh /usr/local/bin/find-deps.sh
 COPY        scripts/wine/create-common-deps-list.sh /usr/local/bin/create-common-deps-list.sh
@@ -21,8 +21,11 @@ RUN         set -eux; \
             apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                 ca-certificates curl wget gnupg xz-utils; \
             install -d -m 0755 /etc/apt/keyrings; \
-            wget -qO- https://dl.winehq.org/wine-builds/winehq.key \
-            | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -; \
+            wget -qO /tmp/apt.key "https://dl.winehq.org/wine-builds/winehq.key"; \
+            [ "$(gpg --show-keys --with-colons /tmp/apt.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "D43F640145369C51D786DDEA76F1A20FF987672F" ] \
+                || { echo "Unexpected signing key at https://dl.winehq.org/wine-builds/winehq.key" >&2; exit 1; }; \
+            gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key /tmp/apt.key; \
+            rm -rf /tmp/apt.key /root/.gnupg; \
             wget -NP /etc/apt/sources.list.d/ \
             "https://dl.winehq.org/wine-builds/debian/dists/${WINE_DIST}/winehq-${WINE_DIST}.sources"; \
             apt-get update; \

@@ -15,7 +15,7 @@ die() { echo "smoke: $*" >&2; exit 1; }
 checks() {
   case "$1" in
     base/Dockerfile)
-      echo "locale -a | grep -qi '^en_US\.utf8\$' && git --version && jq --version && xvfb-run --help >/dev/null && wg --version" ;;
+      echo "locale -a | grep -qi '^en_US\.utf8\$' && git --version && jq --version && xvfb-run --help >/dev/null && nft --version && wg --version" ;;
     java/Dockerfile)
       echo "java -version && javac -version" ;;
     python/Dockerfile|python/Dockerfile.all)
