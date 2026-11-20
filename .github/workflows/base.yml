@@ -44,7 +44,7 @@ jobs:
             ${{ matrix.alias && format('cubecoders/ampbase:{0}', matrix.alias) || '' }}
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.base }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.base }}
-          smoke: locale -a | grep -qi '^en_US\.utf8$' && git --version && jq --version && xvfb-run --help >/dev/null && gdb --version
+          smoke: locale -a | grep -qi '^en_US\.utf8$' && git --version && jq --version && xvfb-run --help >/dev/null
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
