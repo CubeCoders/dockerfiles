@@ -121,7 +121,6 @@ RUN         set -eux; \
             | sort -u)"; \
             printf '%s\n' "${PYTHON_PKGS}" | xargs -r apt-get purge --auto-remove -y; \
             \
-            # Don't reinstall gdb: its libpython3.13 dep restores /usr/lib/python3.13, which breaks venvs made via /usr/bin/python3
             sort -u /tmp/*-run-deps.txt \
             | awk 'NF && $1 !~ /^#/' \
             | xargs -r apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends; \
