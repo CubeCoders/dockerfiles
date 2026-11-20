@@ -48,6 +48,12 @@ RUN         set -eux; \
                 \
                 arm64) \
                     dpkg --add-architecture armhf; \
+                    # Ubuntu 26.04+ serves arm64 from archive.ubuntu.com, which has no armhf; armhf stays on ports
+                    if grep -qs '^URIs: http://archive.ubuntu.com' /etc/apt/sources.list.d/ubuntu.sources; then \
+                        sed -i '/^Types:/a Architectures: arm64' /etc/apt/sources.list.d/ubuntu.sources; \
+                        sed -e 's/^Architectures: arm64/Architectures: armhf/' -e 's#^URIs: .*#URIs: http://ports.ubuntu.com/ubuntu-ports/#' \
+                            /etc/apt/sources.list.d/ubuntu.sources > /etc/apt/sources.list.d/ubuntu-ports.sources; \
+                    fi; \
                     apt-get update; \
                     apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                         # Required for steamcmd
