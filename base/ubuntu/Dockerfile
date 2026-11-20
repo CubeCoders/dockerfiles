@@ -16,15 +16,15 @@ RUN         set -eux; \
             userdel -r ubuntu; \
             mkdir -p /usr/share/man/man1; \
             apt-get update; \
-            apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
-                ca-certificates curl wget tar unzip xz-utils bzip2 \
+            apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
+                ca-certificates netbase curl wget tar unzip xz-utils bzip2 \
                 coreutils procps iproute2 iputils-ping socat jq git git-lfs gnupg tmux dbus \
                 tini tzdata locales gosu \
                 libssl3t64 libcurl4t64 libsqlite3-0 libzstd1 libsdl2-2.0-0 libsdl1.2debian libfontconfig1 libicu78 \
                 # Required for Proton
                 python3 \
                 # Required for Core Keeper
-                xvfb xauth libxi6 \
+                xvfb xauth libxi6 libxtst6 \
                 # Required for Valheim crossplay (and variously some others)
                 libc6 libatomic1 libpulse0 libpulse-mainloop-glib0 \
                 # Required for BeamMP
@@ -32,24 +32,24 @@ RUN         set -eux; \
                 # Required for Eco
                 libgdiplus \
                 # Required for Pavlov VR (and variously some others)
-                gdb libc++1 libc++abi1 libunwind8 libgcc-s1; \
+                libc++1 libc++abi1 libunwind8 libgcc-s1; \
             \
             case "$TARGETARCH" in \
                 amd64) \
                     dpkg --add-architecture i386; \
                     apt-get update; \
-                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                         # Required for steamcmd
                         libgcc-s1:i386 \
                         # Others
                         libstdc++6:i386 zlib1g:i386 libbz2-1.0:i386 libcurl4t64:i386 libcurl3t64-gnutls:i386 \
-                        libncurses6:i386 libtinfo6:i386 libsdl2-2.0-0:i386 libssl3t64:i386; \
+                        libncurses6:i386 libtinfo6:i386 libfreetype6:i386 libfontconfig1:i386 libsdl2-2.0-0:i386 libssl3t64:i386; \
                     ;; \
                 \
                 arm64) \
                     dpkg --add-architecture armhf; \
                     apt-get update; \
-                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                         # Required for steamcmd
                         libgcc-s1:armhf \
                         # Others
@@ -63,7 +63,7 @@ RUN         set -eux; \
                     wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg; \
                     printf "Types: deb\nURIs: https://Pi-Apps-Coders.github.io/box64-debs/debian\nSuites: ./\nSigned-By: /etc/apt/keyrings/box64-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box64.sources >/dev/null; \
                     apt-get update; \
-                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
+                    apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                         box86-generic-arm:armhf box64-generic-arm; \
                     ;; \
             esac; \

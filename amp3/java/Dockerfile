@@ -25,7 +25,7 @@ RUN         set -eux; \
             apt-get update; \
             JAVA_PACKAGES=""; \
             for v in ${JAVA_VERSIONS}; do JAVA_PACKAGES="${JAVA_PACKAGES} temurin-${v}-jdk"; done; \
-            apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
+            apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                 ${JAVA_PACKAGES}; \
             # Temurin names its directory by Debian arch (TARGETARCH).
             update-alternatives --set java "/usr/lib/jvm/temurin-${JAVA_DEFAULT}-jdk-${TARGETARCH}/bin/java"; \

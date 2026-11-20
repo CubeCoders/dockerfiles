@@ -19,7 +19,7 @@ RUN         set -eux; \
             wget -qO- https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg; \
             printf 'Types: deb\nURIs: https://packages.adoptium.net/artifactory/deb\nSuites: %s\nComponents: main\nSigned-By: /etc/apt/keyrings/adoptium.gpg\n' "$(. /etc/os-release; echo "${VERSION_CODENAME}")" | tee /etc/apt/sources.list.d/adoptium.sources >/dev/null; \
             apt-get update; \
-            apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
+            apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                 temurin-8-jdk temurin-11-jdk temurin-17-jdk temurin-21-jdk temurin-25-jdk; \
             # Set Java 21 as the default version
             update-alternatives --set java "/usr/lib/jvm/temurin-21-jdk-${TARGETARCH}/bin/java"; \

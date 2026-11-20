@@ -19,7 +19,7 @@ RUN         set -eux; \
             wget -qO- https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg; \
             printf 'Types: deb\nURIs: https://packages.adoptium.net/artifactory/deb\nSuites: %s\nComponents: main\nSigned-By: /etc/apt/keyrings/adoptium.gpg\n' "$(. /etc/os-release; echo "${VERSION_CODENAME}")" | tee /etc/apt/sources.list.d/adoptium.sources >/dev/null; \
             apt-get update; \
-            apt-get install -o APT::Keep-Downloaded-Packages="false" -y \
+            apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                 temurin-25-jdk; \
             apt-get clean; \
             rm -rf /var/lib/apt/lists/*
