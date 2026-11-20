@@ -54,7 +54,15 @@ chmod +x "${AMP_BIN}" || { echo "[Error] AMP binary not found or cannot be made 
 REQUIRED_DEPS=()
 if [[ -n "${AMP_CONTAINER_DEPS:-}" ]]; then
   # shellcheck disable=SC2207
-  REQUIRED_DEPS=($(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" 2>/dev/null || echo))
+  mapfile -t DEPS < <(jq -r '.[]? | select(type=="string" and length>0)' <<<"${AMP_CONTAINER_DEPS}" 2>/dev/null)
+  # Package names only (optional :arch, =version); anything else could smuggle apt options in as root
+  for dep in "${DEPS[@]}"; do
+    if [[ "${dep}" =~ ^[a-z0-9][a-z0-9+.-]*(:[a-z0-9]+)?(=[A-Za-z0-9.+~:-]+)?$ ]]; then
+      REQUIRED_DEPS+=("${dep}")
+    else
+      echo "[Warn] Ignoring invalid package name in AMP_CONTAINER_DEPS: ${dep}"
+    fi
+  done
 fi
 
 if ((${#REQUIRED_DEPS[@]})); then
@@ -63,7 +71,7 @@ if ((${#REQUIRED_DEPS[@]})); then
     set +e
     apt-get update || echo "[Warn] apt-get update failed; continuing"
     apt-get install -y --no-install-recommends --allow-downgrades \
-      -o APT::Keep-Downloaded-Packages="false" "${REQUIRED_DEPS[@]}" \
+      -o APT::Keep-Downloaded-Packages="false" -- "${REQUIRED_DEPS[@]}" \
       || echo "[Warn] apt-get install failed (bad package name?); continuing"
     apt-get clean >/dev/null 2>&1 || true
     rm -rf /var/lib/apt/lists/* || true

@@ -39,6 +39,8 @@ RUN         set -eux; \
                 libgdiplus \
                 # Required for Pavlov VR (and variously some others)
                 libc++1 libc++abi1 libunwind8 libgcc-s1 \
+                # Required for the local network filter (nft)
+                nftables \
                 # Required for gateway mode
                 wireguard-tools wireguard-go libcap2-bin; \
             \
@@ -74,23 +76,23 @@ RUN         set -eux; \
                     \
                     # box86/box64 for x86 titles on aarch64
                     install -d -m 0755 /etc/apt/keyrings; \
-                    wget -qO- "https://pi-apps-coders.github.io/box86-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box86-archive-keyring.gpg; \
+                    wget -qO /tmp/apt.key "https://pi-apps-coders.github.io/box86-debs/KEY.gpg"; \
+                    [ "$(gpg --show-keys --with-colons /tmp/apt.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "32F9ECBF8E64E9C22F95AEB34DBE689F87D192A5" ] \
+                        || { echo "Unexpected signing key at https://pi-apps-coders.github.io/box86-debs/KEY.gpg" >&2; exit 1; }; \
+                    gpg --dearmor -o /etc/apt/keyrings/box86-archive-keyring.gpg /tmp/apt.key; \
+                    rm -rf /tmp/apt.key /root/.gnupg; \
                     printf "Types: deb\nURIs: https://Pi-Apps-Coders.github.io/box86-debs/debian\nSuites: ./\nSigned-By: /etc/apt/keyrings/box86-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box86.sources >/dev/null; \
-                    wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg; \
+                    wget -qO /tmp/apt.key "https://pi-apps-coders.github.io/box64-debs/KEY.gpg"; \
+                    [ "$(gpg --show-keys --with-colons /tmp/apt.key | awk -F: '$1=="pub"{p=1;next} p&&$1=="fpr"{print $10;p=0}')" = "32F9ECBF8E64E9C22F95AEB34DBE689F87D192A5" ] \
+                        || { echo "Unexpected signing key at https://pi-apps-coders.github.io/box64-debs/KEY.gpg" >&2; exit 1; }; \
+                    gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg /tmp/apt.key; \
+                    rm -rf /tmp/apt.key /root/.gnupg; \
                     printf "Types: deb\nURIs: https://Pi-Apps-Coders.github.io/box64-debs/debian\nSuites: ./\nSigned-By: /etc/apt/keyrings/box64-archive-keyring.gpg" | tee /etc/apt/sources.list.d/box64.sources >/dev/null; \
                     apt-get update; \
                     apt-get install -o APT::Keep-Downloaded-Packages="false" -y --no-install-recommends \
                         box86-generic-arm:armhf box64-generic-arm; \
                     ;; \
             esac; \
-            \
-            # Some older Steam titles still link libssl1.1; provide it (not in trixie).
-            case "${TARGETARCH}" in \
-                amd64) wget -qO libssl1.1.deb https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb;; \
-                arm64) wget -qO libssl1.1.deb https://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_arm64.deb;; \
-            esac; \
-            apt-get install -y ./libssl1.1.deb; \
-            rm libssl1.1.deb; \
             \
             # Locales (en_US.UTF-8)
             sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen; \

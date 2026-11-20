@@ -13,9 +13,11 @@ COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
 RUN         chmod +x /usr/local/bin/find-deps.sh
 
 RUN         set -eux; \
-            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt
+            /usr/local/bin/find-deps.sh >/tmp/${PYTHON_VERSION}-run-deps.txt; \
+            rm /usr/local/bin/find-deps.sh
 
 FROM        cubecoders/ampbase:debian
+LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"

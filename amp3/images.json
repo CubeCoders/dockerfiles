@@ -53,14 +53,6 @@
     },
 
     {
-      "tag": "python-3.10",
-      "description": "Official upstream Python 3.10 build.",
-      "dockerfile": "python/Dockerfile",
-      "from": "debian",
-      "platforms": ["linux/amd64", "linux/arm64"],
-      "args": { "PYTHON_VERSION": "3.10" }
-    },
-    {
       "tag": "python-3.11",
       "description": "Official upstream Python 3.11 build.",
       "dockerfile": "python/Dockerfile",
@@ -103,7 +95,7 @@
     {
       "tag": "python-3",
       "aliases": ["python3"],
-      "description": "Official upstream Python 3.10 to 3.15 builds, with 3.13 as the default python3.",
+      "description": "Official upstream Python 3.11 to 3.15 builds, with 3.13 as the default python3.",
       "dockerfile": "python/Dockerfile.all",
       "from": "debian",
       "platforms": ["linux/amd64", "linux/arm64"]
@@ -112,7 +104,7 @@
     {
       "tag": "mono-latest",
       "aliases": ["mono"],
-      "description": "The latest official Mono build.",
+      "description": "Mono from the Debian archive (mono-complete).",
       "dockerfile": "mono/Dockerfile",
       "from": "debian",
       "platforms": ["linux/amd64", "linux/arm64"]
@@ -167,14 +159,6 @@
       "platforms": ["linux/amd64", "linux/arm64"],
       "args": { "WINE_BRANCH": "stable", "WINE_TARGET": "10" }
     },
-    {
-      "tag": "wine-9-stable",
-      "description": "WineHQ stable branch, held at Wine 9.",
-      "dockerfile": "wine/Dockerfile",
-      "from": "wine-common",
-      "platforms": ["linux/amd64", "linux/arm64"],
-      "args": { "WINE_BRANCH": "stable", "WINE_TARGET": "9" }
-    },
 
     {
       "tag": "postgresql",
@@ -210,7 +194,9 @@
     "deb11": "debian-12",
     "xvfb": "debian",
     "java8": "java-lts",
-    "wine8": "wine-9-stable"
+    "wine8": "wine-10-stable",
+    "wine-9-stable": "wine-10-stable",
+    "python-3.10": "python-3"
   },
   "refused": ["node", "ads"]
 }

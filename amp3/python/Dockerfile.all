@@ -2,14 +2,6 @@
 
 ARG         AMPBASE="cubecoders/amp3base:debian"
 
-FROM        python:3.10-slim-trixie AS py310
-ENV         DEBIAN_FRONTEND="noninteractive"
-COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
-RUN         set -eux; \
-            chmod +x /usr/local/bin/find-deps.sh; \
-            /usr/local/bin/find-deps.sh >/tmp/3.10-run-deps.txt; \
-            rm /usr/local/bin/find-deps.sh
-
 FROM        python:3.11-slim-trixie AS py311
 ENV         DEBIAN_FRONTEND="noninteractive"
 COPY        scripts/python/find-deps.sh /usr/local/bin/find-deps.sh
@@ -55,19 +47,16 @@ FROM        ${AMPBASE}
 LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses="MIT"
 LABEL       org.opencontainers.image.title="AMPBase v3 (Python, all versions)"
-LABEL       org.opencontainers.image.description="AMPBase v3 plus the official upstream Python 3.10 to 3.15 builds. Contains no AMP code."
+LABEL       org.opencontainers.image.description="AMPBase v3 plus the official upstream Python 3.11 to 3.15 builds. Contains no AMP code."
 
 ENV         PIP_DISABLE_PIP_VERSION_CHECK="1"
 ENV         AMP_ADDITIONAL_ENV_VARS="PIP_DISABLE_PIP_VERSION_CHECK"
 ENV         DEBIAN_FRONTEND="noninteractive"
 
 ARG         PYTHON_DEFAULT="3.13"
-ARG         PYTHON_NON_DEFAULT="3.10 3.11 3.12 3.14 3.15"
+ARG         PYTHON_NON_DEFAULT="3.11 3.12 3.14 3.15"
 
 # Default version last: its unversioned binaries win.
-COPY        --from=py310 /usr/local/ /usr/local/
-COPY        --from=py310 /tmp/3.10-run-deps.txt /tmp/3.10-run-deps.txt
-
 COPY        --from=py311 /usr/local/ /usr/local/
 COPY        --from=py311 /tmp/3.11-run-deps.txt /tmp/3.11-run-deps.txt
 

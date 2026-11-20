@@ -15,7 +15,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   check_changes:
@@ -89,9 +88,6 @@ jobs:
           - version: '10-stable'
             branch: 'stable'
             target: '10'
-          - version: '9-stable'
-            branch: 'stable'
-            target: '9'
 
     steps:
       - uses: actions/checkout@v7

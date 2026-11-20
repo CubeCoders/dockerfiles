@@ -15,7 +15,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   check_changes:
@@ -51,7 +50,6 @@ jobs:
         include:
           - python: '3'
             alias: 'python3'
-          - python: '3.10'
           - python: '3.11'
           - python: '3.12'
           - python: '3.13'

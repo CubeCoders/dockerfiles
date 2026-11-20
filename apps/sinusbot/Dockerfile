@@ -3,6 +3,7 @@
 
 FROM        cubecoders/ampbase:debian
 
+LABEL       org.opencontainers.image.source="https://github.com/CubeCoders/dockerfiles"
 LABEL       org.opencontainers.image.licenses=MIT
 
 ENV         DEBIAN_FRONTEND="noninteractive"
